@@ -10,9 +10,13 @@ Site do Alegrete Summit 2026 (29 e 30 de outubro, Sicredi Essência, Alegrete/RS
 - `ia-ecossistemas.html`, `ia-no-pampa.html`, `inovar-com-ia.html`: especial sobre IA e inovação
 - `clipe.html`: clipe animado "IA + Inovação: a simbiose indissolúvel"
 
+## Idiomas
+
+O site está em português (raiz), inglês (`en/`) e espanhol (`es/`), com os mesmos nomes de arquivo nos três idiomas e seletor PT · EN · ES em todas as páginas. O clipe tem legendas em inglês e espanhol (`assets/video/*.vtt`).
+
 ## Como editar
 
-Edite os fragmentos em `_paginas/` (cabeçalho, menu e rodapé ficam em `tools/montar_site.py`) e gere os HTML da raiz:
+Edite os fragmentos em `_paginas/pt/`, `_paginas/en/` e `_paginas/es/` (cabeçalho, menu, rodapé e textos comuns de cada idioma ficam em `tools/montar_site.py`) e gere os HTML:
 
     python3 tools/montar_site.py
 
