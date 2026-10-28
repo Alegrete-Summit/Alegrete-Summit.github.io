@@ -83,3 +83,61 @@ Gera `assets/video/alegrete-summit-2026.mp4` (pt), `alegrete-summit-2026.en.mp4`
 5. **31,5–38,5 s, conexões viram negócios:** rede de pessoas que se liga, e três ligações viram negócio. "Ideias encontram parceiros. Conexões viram negócios."
 6. **38,5–42,5 s, para quem é:** estudantes, pesquisadores, empreendedores, investidores, produtores rurais, gestores públicos. "Para você."
 7. **42,5–50 s, convite:** data, local, gratuito, certificado de 24 h, "Inovar é construir pontes", pré-inscrição no @alegretecidadeinovadora.
+
+---
+
+# Clipe "Kauã e o poder de criar" (fábula)
+
+Fábula de 2 min 54 s (1280x720, 30 fps, H.264 + AAC, cerca de 9,5 MB por idioma): um jovem indígena no coração da Amazônia ganha internet via satélite, um notebook e acesso a um modelo de IA (Claude), cria um produto para a floresta que vira sucesso internacional e investe o dinheiro na aldeia. Moral: internet e IA democratizam o poder de criar. Personagem e produto são fictícios, e o clipe diz isso no fim.
+
+Diferente dos outros clipes, o estilo é de ilustração plana (formas preenchidas, sem o brilho neon), mas com as mesmas fontes, cores de destaque e logo. Os textos são desenhados no quadro, então há uma versão por idioma. A trilha é própria: Am–F–C–G a 90 bpm, marimba pentatônica, sons da mata (vento, pássaros, grilos), motosserra e avisos sintetizados.
+
+```sh
+python3 -I tools/clipe/render_kaua.py                 # pt, en e es (cerca de 3 minutos com 16 núcleos)
+python3 -I tools/clipe/render_kaua.py --lang en       # só um idioma
+python3 -I tools/clipe/render_kaua.py --stills 21 58 101 --stills-dir /tmp/quadros
+```
+
+Gera `assets/video/kaua-ia.mp4` (pt), `kaua-ia.en.mp4` e `kaua-ia.es.mp4`, cada um com o pôster `.jpg` (quadro de 58 s). Os quadros são desenhados em paralelo (`--jobs`, padrão: núcleos menos 2).
+
+## Cenas
+
+1. **0–8 s, abertura:** mata à noite com vaga-lumes; "Kauã e o poder de criar", "Uma fábula sobre internet, IA e transformação".
+2. **8–30 s, a mata (a):** amanhecer na aldeia; Kauã chega caminhando. Fumaça e motosserra ao longe: a floresta está em perigo. "Sem sinal": a aldeia está desconectada.
+3. **30–50 s, a antena (b):** Kauã e um ancião montam uma antena de internet via satélite (como a Starlink); anoitece, um trem de satélites cruza o céu, o feixe chega à antena e o Wi-Fi cobre a aldeia. "ONLINE".
+4. **50–64 s, o notebook (c):** um projeto de inclusão digital entrega uma caixa; o notebook acende; Kauã, sentado perto da fogueira, começa a usar.
+5. **64–96 s, a IA (d):** tela do chat com o Claude. Kauã, que não é programador, pergunta como proteger a mata; a IA propõe sensores com celulares usados e painel solar e um modelo que reconhece motosserra e fogo; aparece o código e o teste do modelo (motosserra 97%).
+6. **96–110 s, o produto (e):** o Kaá Sentinela (kaá: mata, em tupi) escuta a mata à noite; um sensor detecta a motosserra, o alerta salta de árvore em árvore até a aldeia, e os guardiões saem com lanternas. "Floresta protegida".
+7. **110–128 s, o sucesso:** globo com arcos para 12 países, contadores (38 países, 1.200 comunidades, R$ 12,4 milhões) e manchetes em quatro idiomas; Kauã comemora.
+8. **128–146 s, a aldeia nova:** painéis solares, caixa d'água, posto de saúde e crianças com notebooks na escola conectada.
+9. **146–174 s, a moral:** internet + notebook + IA = poder de criar; "Qualquer pessoa, em qualquer lugar…", "Criar soluções digitais não é mais privilégio…", "Criar soluções para problemas locais pode ser o grande diferencial"; encerramento com "Internet e IA democratizam o poder de criar", logo, data e local.
+
+---
+
+# Clipe "A revolução da IA já começou. E está atropelando" (caso real IoTEdu)
+
+Clipe de 2 min 46 s (1280x720, 30 fps, H.264 + AAC, cerca de 5 MB por idioma) sobre um caso real do projeto de inovação IoTEdu (https://iotedu.org), relatado por Diego Kreutz (UNIPAMPA), coordenador do projeto. Uma equipe de 6 alunos levou 7 dias (cerca de 256 horas-pessoa) numa tarefa; um único aluno de graduação, usando LLMs em alto nível, entregou o mesmo resultado, melhor e mais completo, em 2 horas. Os números e as frases seguem o relato original; os alunos não são identificados (as figuras são genéricas).
+
+Usa o motor de desenho do clipe da fábula (`render_kaua.py`: classe `Cv`, `person`, `caption`, `logo`), com fundo escuro quadriculado. Trilha própria: Dm–B♭–F–C a 112 bpm, baixo em colcheias, tique-taque nos 7 dias e no relógio de 2 horas, e impactos no 128×.
+
+```sh
+python3 -I tools/clipe/render_iotedu.py                 # pt, en e es
+python3 -I tools/clipe/render_iotedu.py --lang en       # só um idioma
+python3 -I tools/clipe/render_iotedu.py --stills 30 72 --stills-dir /tmp/quadros
+```
+
+Gera `assets/video/revolucao-ia.mp4` (pt), `revolucao-ia.en.mp4` e `revolucao-ia.es.mp4`, cada um com o pôster `.jpg` (quadro de 74 s, o "128×").
+
+## Cenas
+
+1. **0–7,5 s, abertura:** rajadas de luz atravessam a tela; "A revolução da IA já começou. E está atropelando."; "Uma história real · projeto de inovação IoTEdu · UNIPAMPA".
+2. **7,5–20 s, o fato:** "Não é hipótese, não é projeção, não é hype" (riscados). "É medição."
+3. **20–40 s, a equipe:** 6 alunos (2 de graduação, 3 de mestrado, 1 mestre) com notebooks; calendário de 7 dias, contador até 256 horas-pessoa e barra de entrega.
+4. **40–58 s, o backup:** um aluno de graduação com LLMs; relógio de 2 horas; a barra enche e passa do fim: "melhor e mais completo".
+5. **58–78 s, a matemática que dói:** barras de 256 horas-pessoa e de 2 horas em escala; 256 ÷ 2 = 128×.
+6. **78–100 s, a narrativa confortável:** a mensagem "sênior +80%, júnior −20%" recebe o carimbo "ERRADA"; gráfico 0,8× / 1,8× / 128×. "A IA não nivela. A IA amplia o gap."
+7. **100–110 s, o diferencial:** resolver problemas + experiência em projetos reais + domínio da IA = velocidade sem precedentes.
+8. **110–122 s, implicações para o ensino:** currículo, avaliações, critérios de um bom aluno, formação, relevância da sala de aula.
+9. **122–134 s, recado para as empresas:** proibir juniores de usar IA é um erro estratégico grave.
+10. **134–152 s, recado para os professores:** as três perguntas.
+11. **152–166 s, encerramento:** curvas que se afastam (o gap), a frase final, crédito do relato e marca do Summit.

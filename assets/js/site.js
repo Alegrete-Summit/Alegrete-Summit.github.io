@@ -50,7 +50,7 @@
       if (nav.classList.contains("open") && !e.target.closest(".site-header")) setMenu(false);
     });
     window.addEventListener("resize", function () {
-      if (window.innerWidth > 1360 && nav.classList.contains("open")) setMenu(false);
+      if (window.innerWidth > 1599 && nav.classList.contains("open")) setMenu(false);
     });
   }
 

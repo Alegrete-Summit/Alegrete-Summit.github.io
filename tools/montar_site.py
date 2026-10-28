@@ -14,6 +14,13 @@ Cada fragmento começa com um cabeçalho de metadados entre linhas '---':
     ---
     <section>...</section>
 
+Campos opcionais do cabeçalho, para páginas com estilos ou scripts próprios
+(lista separada por vírgulas; nomes simples são procurados em assets/css/ ou
+assets/js/, endereços https:// entram como estão):
+
+    css: kaua.css
+    js: jogo-kaua.js
+
 Os fragmentos usam caminhos como se estivessem na raiz (assets/..., programacao.html);
 nas versões em inglês e espanhol, os caminhos de assets/ ganham o prefixo ../.
 Os três idiomas usam os mesmos nomes de arquivo, o que permite trocar de idioma
@@ -45,12 +52,18 @@ PAGINAS = [
     ("inovar", "inovar-com-ia.html", "ia"),
     ("casos", "casos-de-sucesso.html", "ia"),
     ("clipe", "clipe.html", "ia"),
+    ("fabula", "fabula-kaua.html", "ia"),
+    ("jogo", "jogo-kaua.html", "ia"),
 ]
+
+# páginas fora do menu principal (o jogo é linkado da fábula e do rodapé) -> item do menu que fica destacado nelas
+FORA_DO_MENU = {"jogo": "fabula"}
 
 TEXTOS = {
     "pt": {
         "menu": {"inicio": "Início", "programacao": "Programação", "novidades": "Novidades",
-                 "ia": "IA e ecossistemas", "pampa": "IA no Pampa", "inovar": "Inovar com IA", "casos": "Casos de sucesso", "clipe": "Clipes"},
+                 "ia": "IA e ecossistemas", "pampa": "IA no Pampa", "inovar": "Inovar com IA", "casos": "Casos de sucesso", "clipe": "Clipes",
+                 "fabula": "A fábula de Kauã", "jogo": "Jogo: Kauã"},
         "pular": "Pular para o conteúdo", "home": "Alegrete Summit 2026, página inicial",
         "abrir": "Menu", "nav": "Principal", "idioma": "Idioma",
         "grupo_evento": "Evento", "grupo_ia": "IA e inovação",
@@ -60,13 +73,15 @@ TEXTOS = {
                        ("novidades.html", "Novidades 2026"), ("novidades.html#edicao-2025", "Edição 2025"),
                        ("index.html#apoio", "Realização e apoio")],
         "rod_ia": [("ia-ecossistemas.html", "O papel da IA nos ecossistemas"), ("ia-no-pampa.html", "IA nos setores do Pampa"),
-                   ("inovar-com-ia.html", "Como inovar com IA"), ("casos-de-sucesso.html", "Startups brasileiras com IA"), ("clipe.html", "Clipe: a simbiose")],
+                   ("inovar-com-ia.html", "Como inovar com IA"), ("casos-de-sucesso.html", "Startups brasileiras com IA"), ("clipe.html", "Clipe: a simbiose"),
+                   ("fabula-kaua.html", "A fábula de Kauã"), ("jogo-kaua.html", "Jogo: Kauã e o Kaá Sentinela")],
         "fino": "Realização: Ecossistema de Inovação Alegrete Cidade Inovadora. Evento gratuito, com certificação de participação. Programação extraída das publicações oficiais no Instagram; confira atualizações em",
         "topo": "Voltar ao topo",
     },
     "en": {
         "menu": {"inicio": "Home", "programacao": "Schedule", "novidades": "News",
-                 "ia": "AI & ecosystems", "pampa": "AI in the Pampa", "inovar": "Innovate with AI", "casos": "Success stories", "clipe": "Clips"},
+                 "ia": "AI & ecosystems", "pampa": "AI in the Pampa", "inovar": "Innovate with AI", "casos": "Success stories", "clipe": "Clips",
+                 "fabula": "Kauã's fable", "jogo": "Game: Kauã"},
         "pular": "Skip to content", "home": "Alegrete Summit 2026, home page",
         "abrir": "Menu", "nav": "Main", "idioma": "Language",
         "grupo_evento": "Event", "grupo_ia": "AI and innovation",
@@ -76,13 +91,15 @@ TEXTOS = {
                        ("novidades.html", "2026 news"), ("novidades.html#edicao-2025", "2025 edition"),
                        ("index.html#apoio", "Organizers and supporters")],
         "rod_ia": [("ia-ecossistemas.html", "The role of AI in ecosystems"), ("ia-no-pampa.html", "AI across the Pampa's sectors"),
-                   ("inovar-com-ia.html", "How to innovate with AI"), ("casos-de-sucesso.html", "Brazilian AI startups"), ("clipe.html", "Clip: the symbiosis")],
+                   ("inovar-com-ia.html", "How to innovate with AI"), ("casos-de-sucesso.html", "Brazilian AI startups"), ("clipe.html", "Clip: the symbiosis"),
+                   ("fabula-kaua.html", "Kauã's fable"), ("jogo-kaua.html", "Game: Kauã and the Kaá Sentinel")],
         "fino": "Organized by the Alegrete Cidade Inovadora innovation ecosystem. Free event with a certificate of participation. Schedule taken from the official Instagram posts; check for updates at",
         "topo": "Back to top",
     },
     "es": {
         "menu": {"inicio": "Inicio", "programacao": "Programa", "novidades": "Novedades",
-                 "ia": "IA y ecosistemas", "pampa": "IA en el Pampa", "inovar": "Innovar con IA", "casos": "Casos de éxito", "clipe": "Clips"},
+                 "ia": "IA y ecosistemas", "pampa": "IA en el Pampa", "inovar": "Innovar con IA", "casos": "Casos de éxito", "clipe": "Clips",
+                 "fabula": "La fábula de Kauã", "jogo": "Juego: Kauã"},
         "pular": "Saltar al contenido", "home": "Alegrete Summit 2026, página de inicio",
         "abrir": "Menú", "nav": "Principal", "idioma": "Idioma",
         "grupo_evento": "Evento", "grupo_ia": "IA e innovación",
@@ -92,7 +109,8 @@ TEXTOS = {
                        ("novidades.html", "Novedades 2026"), ("novidades.html#edicao-2025", "Edición 2025"),
                        ("index.html#apoio", "Organización y apoyo")],
         "rod_ia": [("ia-ecossistemas.html", "El papel de la IA en los ecosistemas"), ("ia-no-pampa.html", "IA en los sectores del Pampa"),
-                   ("inovar-com-ia.html", "Cómo innovar con IA"), ("casos-de-sucesso.html", "Startups brasileñas con IA"), ("clipe.html", "Clip: la simbiosis")],
+                   ("inovar-com-ia.html", "Cómo innovar con IA"), ("casos-de-sucesso.html", "Startups brasileñas con IA"), ("clipe.html", "Clip: la simbiosis"),
+                   ("fabula-kaua.html", "La fábula de Kauã"), ("jogo-kaua.html", "Juego: Kauã y el Kaá Centinela")],
         "fino": "Organiza: Ecosistema de Innovación Alegrete Cidade Inovadora. Evento gratuito, con certificado de participación. Programa tomado de las publicaciones oficiales en Instagram; consulta las novedades en",
         "topo": "Volver arriba",
     },
@@ -124,7 +142,7 @@ MODELO = """<!doctype html><html lang="{html_lang}"><head><meta charset="utf-8">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{base}assets/css/site.css">
-</head>
+{estilos_extras}</head>
 <body>
 <a class="skip" href="#conteudo">{t_pular}</a>
 <header class="site-header">
@@ -172,7 +190,7 @@ MODELO = """<!doctype html><html lang="{html_lang}"><head><meta charset="utf-8">
   </div>
 </footer>
 <script src="{base}assets/js/site.js"></script>
-</body>
+{scripts_extras}</body>
 </html>
 """
 
@@ -196,7 +214,10 @@ def caminho_para(origem, destino, arquivo):
 def menu(lang, ativo):
     t = TEXTOS[lang]["menu"]
     linhas = []
+    ativo = FORA_DO_MENU.get(ativo, ativo)
     for chave, arquivo, grupo in PAGINAS:
+        if chave in FORA_DO_MENU:
+            continue
         attrs = ' class="nav-ia"' if grupo == "ia" else ""
         if chave == ativo:
             attrs += ' aria-current="page"'
@@ -225,6 +246,17 @@ def lista(itens):
     return "\n".join(f'        <li><a href="{h}">{r}</a></li>' for h, r in itens)
 
 
+def extras(meta, campo, base):
+    """Tags <link>/<script> para os campos opcionais `css` e `js` do cabeçalho."""
+    itens = [i.strip() for i in meta.get(campo, "").split(",") if i.strip()]
+    tags = []
+    for item in itens:
+        url = item if item.startswith("https://") else f"{base}assets/{campo}/{item}"
+        url = html.escape(url)
+        tags.append(f'<link rel="stylesheet" href="{url}">' if campo == "css" else f'<script src="{url}"></script>')
+    return "".join(t + "\n" for t in tags)
+
+
 def main():
     for lang in IDIOMAS:
         base = "../" if PASTA[lang] else ""
@@ -248,6 +280,7 @@ def main():
                 idiomas_rodape=seletor(lang, arquivo, curto=False),
                 rod_evento=lista(t["rod_evento"]), rod_ia=lista(t["rod_ia"]),
                 corpo=corpo.strip("\n"),
+                estilos_extras=extras(meta, "css", base), scripts_extras=extras(meta, "js", base),
                 **{"t_" + k: v for k, v in t.items() if isinstance(v, str)},
             )
             (RAIZ / PASTA[lang] / arquivo).write_text(saida, encoding="utf-8")
