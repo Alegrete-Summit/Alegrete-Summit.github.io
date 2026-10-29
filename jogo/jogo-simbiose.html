@@ -66,10 +66,11 @@ button { font: inherit; color: inherit; }
 .log div:not(:first-child) { color: var(--ink-3); }
 
 .controls { pointer-events: auto; display: flex; flex-direction: column; gap: 6px; align-items: center; }
-.row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 100%; }
 .chip { background: rgba(5,7,6,.8); border: 1px solid var(--line); border-radius: 99px; padding: 7px 12px; font: 600 .72rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; color: var(--ink-2); }
 .chip:hover { border-color: var(--neon); color: #fff; }
 .chip[aria-pressed="true"] { background: var(--neon-dim); border-color: var(--neon); color: var(--neon); }
+.chip.sair:hover { border-color: #ff5d5d; color: #ff5d5d; }
 .hint { color: var(--ink-3); font-size: .72rem; text-align: center; background: rgba(5,7,6,.6); padding: 3px 10px; border-radius: 99px; }
 .hint b { color: var(--amber); font-weight: 600; }
 
@@ -126,7 +127,8 @@ input[type=range] { width: 100%; accent-color: var(--neon); }
 
 @media (max-width: 760px) {
   .rules, .setup, .result { grid-template-columns: 1fr; }
-  .top { grid-template-columns: 1fr 1fr; }
+  .top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .team .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .center { grid-column: 1 / -1; grid-row: 2; justify-self: center; padding: 6px 12px; min-width: 0; }
   .brains { flex-direction: column; align-items: stretch; }
   .brain { display: none; }
@@ -181,6 +183,7 @@ input[type=range] { width: 100%; accent-color: var(--neon); }
         <button class="chip" id="btnPause">⏸ Pausar</button>
         <button class="chip" id="btnMute">♪ Som</button>
         <button class="chip" id="btnCerebro" aria-pressed="false">Cérebros</button>
+        <button class="chip sair" id="btnSair" title="Encerrar a partida e voltar à tela inicial (Esc)">✕ Sair</button>
       </div>
     </div>
     <div class="brain amber" id="brainB"></div>
@@ -211,7 +214,8 @@ input[type=range] { width: 100%; accent-color: var(--neon); }
     </div>
     <div class="go">
       <button class="btn" id="btnIniciar">▶ Iniciar o duelo</button>
-      <p class="small">Trilha: <em>Alegrete Summit</em>, Original, versão 4 (3 min 35 s). A partida dura a música inteira.<br>Atalhos: 1–4 câmeras · espaço pausa · M som.</p>
+      <a class="btn ghost" href="../index.html">← Voltar ao site</a>
+      <p class="small">Trilha: <em>Alegrete Summit</em>, Original, versão 4 (3 min 35 s). A partida dura a música inteira.<br>Atalhos: 1–4 câmeras · espaço pausa · M som · Esc sair.</p>
     </div>
   </div>
 </section>
@@ -1085,12 +1089,14 @@ document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click',
 $('btnPause').addEventListener('click', alternaPausa);
 $('btnMute').addEventListener('click', alternaSom);
 $('btnCerebro').addEventListener('click', () => { const on = $('brains').classList.toggle('show-brains'); $('btnCerebro').setAttribute('aria-pressed', on); });
+$('btnSair').addEventListener('click', sai);
 $('btnIniciar').addEventListener('click', comeca);
 $('btnDeNovo').addEventListener('click', () => { $('telaFim').hidden = true; $('telaInicio').hidden = false; });
 addEventListener('keydown', e => {
   if (!jogando) return;
   if (e.key === ' ') { e.preventDefault(); alternaPausa(); }
   if (e.key === 'm' || e.key === 'M') alternaSom();
+  if (e.key === 'Escape') sai();
   const m = { '1': 'orbita', '2': 'a', '3': 'b', '4': 'cine' }[e.key]; if (m) setCam(m);
 });
 function alternaPausa() {
@@ -1110,6 +1116,16 @@ function comeca() {
   jogando = true; pausado = false; $('btnPause').textContent = '⏸ Pausar';
   setCam('orbita');
   iniciaAudio();
+}
+
+// abandona a partida sem placar final e volta à tela inicial
+function sai() {
+  if (!jogando) return;
+  const rodando = !pausado;
+  if (rodando) alternaPausa();
+  if (!confirm('Sair da partida? O placar atual será perdido.')) { if (rodando) alternaPausa(); return; }
+  jogando = false; audio.pause();
+  $('hud').hidden = true; $('telaInicio').hidden = false;
 }
 
 function fimDeJogo() {
