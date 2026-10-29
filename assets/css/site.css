@@ -181,9 +181,11 @@ section { padding: clamp(56px, 8vw, 104px) 0; position: relative; }
 .countdown { display: inline-flex; gap: 10px; align-items: center; font: 600 .95rem var(--display); letter-spacing: .06em; color: var(--ink); border-left: 3px solid var(--neon); padding: 4px 0 4px 12px; margin-bottom: 26px; }
 .hero-video { margin: 0; background: #000; }
 .hero-video video { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; background: #000; }
-.hero-video-ctrl { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
-.hero-video-ctrl button { font: 600 .78rem/1 var(--display); letter-spacing: .04em; color: var(--ink); background: rgba(0, 0, 0, .7); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
-.hero-video-ctrl button:hover, .hero-video-ctrl button:focus-visible { border-color: var(--neon); color: var(--neon); }
+.hero-video-ctrl { position: absolute; top: 12px; right: 12px; left: 12px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; pointer-events: none; }
+.hero-video-ctrl button, .hero-video-ctrl a { font: 600 .78rem/1 var(--display); letter-spacing: .04em; color: var(--ink); background: rgba(0, 0, 0, .7); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; cursor: pointer; }
+.hero-video-ctrl a { text-decoration: none; }
+.hero-video-ctrl > * { pointer-events: auto; }
+.hero-video-ctrl button:hover, .hero-video-ctrl button:focus-visible, .hero-video-ctrl a:hover, .hero-video-ctrl a:focus-visible { border-color: var(--neon); color: var(--neon); }
 @media (max-width: 860px) { .hero .wrap { grid-template-columns: 1fr; } .hero-photo img { aspect-ratio: 4 / 3; object-position: center 62%; } .hero-video { max-width: 520px; margin: 0 auto; } .circuit { display: none; } }
 
 /* ---------- logo ---------- */
