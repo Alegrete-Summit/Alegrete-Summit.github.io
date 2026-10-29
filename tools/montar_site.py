@@ -47,12 +47,12 @@ PAGINAS = [
     ("inicio", "index.html", "evento"),
     ("programacao", "programacao.html", "evento"),
     ("novidades", "novidades.html", "evento"),
-    ("musicas", "musicas.html", "evento"),
     ("ia", "ia-ecossistemas.html", "ia"),
     ("pampa", "ia-no-pampa.html", "ia"),
     ("inovar", "inovar-com-ia.html", "ia"),
     ("casos", "casos-de-sucesso.html", "ia"),
     ("clipe", "clipe.html", "ia"),
+    ("musicas", "musicas.html", "ia"),
     ("fabula", "fabula-kaua.html", "ia"),
     ("jogo", "jogo-kaua.html", "ia"),
 ]
