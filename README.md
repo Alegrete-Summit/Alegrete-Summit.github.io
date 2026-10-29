@@ -24,4 +24,4 @@ Edite os fragmentos em `_paginas/pt/`, `_paginas/en/` e `_paginas/es/` (cabeçal
     python3 tools/montar_site.py
 
 Estilos em `assets/css/site.css` (a fábula e o jogo têm `assets/css/kaua.css`, `assets/js/fabula-kaua.js` e `assets/js/jogo-kaua.js`, declarados nos campos `css:` e `js:` do cabeçalho do fragmento); imagens em `assets/img/` (extraídas do Instagram @alegretecidadeinovadora).
-O clipe é gerado por `tools/clipe/render_clipe.py` (veja `tools/clipe/LEIAME.md`).
+O clipe é gerado por `tools/clipe/render_clipe.py`, e as versões narradas de todos os clipes (com trilha nova e fábula de Kauã em 88 s), por `tools/clipe/render_narrado.py` (veja `tools/clipe/LEIAME.md`).

@@ -12,3 +12,6 @@
 
 pkg/
 src/
+
+# cache das falas sintetizadas (tools/clipe/voz.py)
+tools/clipe/.cache_voz/

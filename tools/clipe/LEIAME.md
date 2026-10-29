@@ -141,3 +141,39 @@ Gera `assets/video/revolucao-ia.mp4` (pt), `revolucao-ia.en.mp4` e `revolucao-ia
 9. **122–134 s, recado para as empresas:** proibir juniores de usar IA é um erro estratégico grave.
 10. **134–152 s, recado para os professores:** as três perguntas.
 11. **152–166 s, encerramento:** curvas que se afastam (o gap), a frase final, crédito do relato e marca do Summit.
+
+---
+
+# Versões narradas de todos os clipes
+
+Cada clipe tem também uma versão narrada, em português, inglês e espanhol, com trilha nova. As versões originais continuam no site e no repositório, sem alteração; as narradas têm `-narrado` no nome (por exemplo, `cowmed-ia-narrado.en.mp4`).
+
+```sh
+python3 tools/clipe/render_narrado.py                          # todos os clipes, nos três idiomas
+python3 tools/clipe/render_narrado.py --clipe kaua --lang pt    # um clipe, um idioma
+python3 tools/clipe/render_narrado.py --checa                  # só confere se as falas cabem nas cenas
+python3 tools/clipe/render_narrado.py --clipe iotedu --so-audio /tmp/mix   # só a mixagem, em WAV
+python3 tools/clipe/render_narrado.py --clipe kaua --stills 10 40 --stills-dir /tmp/quadros
+```
+
+Requer, além de Pillow, numpy e ffmpeg, o scipy (filtros da trilha) e o edge-tts (voz), com acesso à rede na primeira vez: as falas ficam em cache em `tools/clipe/.cache_voz/` (fora do git). Neste Mac, rode sem o `-I`, porque numpy, scipy e edge-tts estão instalados no site-packages do usuário. O ffmpeg é procurado na variável `FFMPEG`, depois no PATH e, por fim, no pacote imageio-ffmpeg.
+
+## Como funciona
+
+- `voz.py`: narração com vozes neurais da Microsoft (edge-tts), masculinas e de timbre médio-grave, com o tom levemente baixado: Antonio (pt-BR), Andrew (en-US) e Tomás (es-AR, rioplatense, vizinho da fronteira). Corta silêncios das pontas e encurta pausas longas entre frases; se uma fala não cabe na janela da cena, ela é sintetizada de novo até 14% mais rápida, e o script avisa se ainda assim não couber.
+- `trilha_summit.py`: trilha eletrônica moderna, no estilo dos eventos de tecnologia: pad de serras desafinadas com sidechain, arpejo em semicolcheias com eco pingue-pongue, baixo, bumbo, palmas, chimbais, risers e impactos nos cortes de cena. Um motivo de sino, sempre com notas do acorde, aparece em todos os clipes, como assinatura sonora do Summit. A energia de cada trecho segue níveis de 0 (só pad) a 4 (tudo, filtro aberto).
+- `render_narrado.py`: roteiros de narração (tempos e textos nos três idiomas), tonalidade, andamento e níveis da trilha de cada clipe, e a mixagem: a trilha abaixa cerca de 11 dB sob a voz (com antecipação de 150 ms), e o resultado é normalizado em -16 LUFS.
+
+| Clipe | Arquivos | Duração | Trilha |
+|---|---|---|---|
+| IA + Inovação | `ia-inovacao-simbiose-narrado{,.en,.es}.mp4` | 72 s | Dm9–B♭maj7–F–Csus, 110 bpm |
+| Cowmed | `cowmed-ia-narrado{,.en,.es}.mp4` | 75 s | G–D6–Em7–Cmaj7, 104 bpm |
+| Chamada (4:5) | `alegrete-summit-2026-narrado{,.en,.es}.mp4` | 50 s | Am9–Fmaj7–C–G6, 120 bpm |
+| A revolução da IA | `revolucao-ia-narrado{,.en,.es}.mp4` | 2 min 46 s | Dm7–B♭maj7–F–Csus, 118 bpm |
+| Kauã e o poder de criar | `kaua-ia-narrado{,.en,.es}.mp4` | 88 s | Am9–Fmaj7–C–G6, 96 bpm |
+
+Nos quatro primeiros, a imagem é copiada do vídeo original sem recodificar: só o áudio muda. Em IA + Inovação e Cowmed, os textos na tela seguem em português, e a narração em inglês ou espanhol vem acompanhada das legendas `.vtt` de sempre.
+
+## A fábula de Kauã em 88 s
+
+A versão narrada da fábula é uma nova montagem das cenas originais (`KAUA_EDL` em `render_narrado.py`): cada trecho é um intervalo do clipe de 2 min 54 s, tocado na velocidade original ou acelerado (até 3× no trem de satélites), com fusões de 0,5 s entre trechos não contíguos. Ficam a chegada de Kauã, a floresta em perigo, a aldeia sem sinal, a antena e o ONLINE, o notebook, o chat com a IA e o teste do modelo, o Kaá Sentinela, o sucesso internacional, a aldeia nova, a equação internet + notebook + IA = poder de criar, a moral e o encerramento com o aviso de ficção. A narração repete as legendas da tela; a mixagem inclui a motosserra ao longe e o alerta do Kaá. Ao mexer na montagem, o script confere a duração e para se ela passar de 90 s.
