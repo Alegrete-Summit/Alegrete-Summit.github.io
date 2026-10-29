@@ -1,0 +1,1186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simbiose: IA vs IA · Alegrete Summit 2026</title>
+<meta name="description" content="Jogo 3D do Alegrete Summit 2026: duas IAs disputam o Pampa no ritmo da música do evento e descobrem que a simbiose rende mais que a disputa.">
+<meta property="og:title" content="Simbiose: IA vs IA · Alegrete Summit 2026">
+<meta property="og:description" content="Duas IAs, um Pampa digital e a trilha do Summit. Quem vence: a disputa ou a simbiose?">
+<meta name="theme-color" content="#050706">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050706; --bg-2: #0b100d; --bg-3: #111a15; --line: #1d2b23;
+  --ink: #f2f5f3; --ink-2: #b9c4be; --ink-3: #7f8c85;
+  --neon: #1df28c; --neon-dim: rgba(29,242,140,.14);
+  --amber: #ffb547; --amber-dim: rgba(255,181,71,.14);
+  --sym: #e8ffd0;
+  --display: "Chakra Petch", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); overflow: hidden; -webkit-text-size-adjust: 100%; }
+canvas#cena { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+button { font: inherit; color: inherit; }
+.hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+.hud > * { pointer-events: auto; }
+
+/* placar */
+.top { position: absolute; top: max(12px, env(safe-area-inset-top)); left: 12px; right: 12px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: start; pointer-events: none; }
+.team { pointer-events: auto; background: rgba(5,7,6,.72); border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); min-width: 0; }
+.team.neon { border-color: rgba(29,242,140,.4); box-shadow: 0 0 24px rgba(29,242,140,.12) inset; }
+.team.amber { border-color: rgba(255,181,71,.4); box-shadow: 0 0 24px rgba(255,181,71,.12) inset; text-align: right; }
+.team .nm { font: 700 .82rem/1 var(--display); letter-spacing: .16em; text-transform: uppercase; }
+.team.neon .nm { color: var(--neon); } .team.amber .nm { color: var(--amber); }
+.team .sc { font: 700 clamp(1.5rem, 4vw, 2.3rem)/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.team .sub { color: var(--ink-3); font-size: .78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.center { text-align: center; background: rgba(5,7,6,.72); border: 1px solid var(--line); border-radius: 14px; padding: 8px 16px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); min-width: 210px; pointer-events: auto; }
+.era { font: 600 .74rem/1.2 var(--display); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); }
+.eco { font: 700 1.25rem/1.2 var(--display); font-variant-numeric: tabular-nums; }
+.eco small { font: 500 .68rem var(--display); letter-spacing: .14em; color: var(--ink-3); display: block; }
+.symbar { height: 8px; border-radius: 99px; background: #18221d; overflow: hidden; margin: 6px 0 4px; }
+.symbar i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--neon), var(--sym), var(--amber)); transition: width .4s; }
+.tm { font: 500 .72rem var(--display); color: var(--ink-3); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+
+/* cérebros */
+.brains { position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: 12px; right: 12px; display: flex; justify-content: space-between; gap: 10px; pointer-events: none; align-items: flex-end; }
+.brain { pointer-events: auto; width: min(300px, 44vw); background: rgba(5,7,6,.78); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font-size: .76rem; }
+.brain h3 { margin: 0 0 6px; font: 700 .72rem/1 var(--display); letter-spacing: .16em; text-transform: uppercase; display: flex; justify-content: space-between; }
+.brain.neon h3 { color: var(--neon); } .brain.amber h3 { color: var(--amber); }
+.brain h3 span { color: var(--ink-3); font-weight: 500; letter-spacing: .08em; }
+.act { display: grid; grid-template-columns: 74px 1fr 34px; gap: 6px; align-items: center; margin: 2px 0; color: var(--ink-2); }
+.act .b { height: 6px; background: #18221d; border-radius: 99px; overflow: hidden; }
+.act .b i { display: block; height: 100%; width: 0; border-radius: 99px; transition: width .3s; }
+.brain.neon .act .b i { background: var(--neon); } .brain.amber .act .b i { background: var(--amber); }
+.act.on { color: #fff; } .act.on .lb::before { content: "▸ "; }
+.act .pc { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-3); }
+.trust { margin-top: 6px; display: flex; gap: 6px; align-items: center; color: var(--ink-3); }
+.trust .b { flex: 1; height: 6px; background: #18221d; border-radius: 99px; overflow: hidden; }
+.trust .b i { display: block; height: 100%; width: 50%; background: linear-gradient(90deg, #ff5d5d, #ffe066, #8dffcf); transition: width .4s; }
+.log { margin-top: 6px; color: var(--ink-2); min-height: 3.1em; line-height: 1.35; }
+.log div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log div:not(:first-child) { color: var(--ink-3); }
+
+.controls { pointer-events: auto; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.chip { background: rgba(5,7,6,.8); border: 1px solid var(--line); border-radius: 99px; padding: 7px 12px; font: 600 .72rem/1 var(--display); letter-spacing: .1em; text-transform: uppercase; cursor: pointer; color: var(--ink-2); }
+.chip:hover { border-color: var(--neon); color: #fff; }
+.chip[aria-pressed="true"] { background: var(--neon-dim); border-color: var(--neon); color: var(--neon); }
+.hint { color: var(--ink-3); font-size: .72rem; text-align: center; background: rgba(5,7,6,.6); padding: 3px 10px; border-radius: 99px; }
+.hint b { color: var(--amber); font-weight: 600; }
+
+/* banner de era */
+.banner { position: fixed; left: 50%; top: 24%; transform: translate(-50%, -50%); text-align: center; z-index: 6; pointer-events: none; opacity: 0; transition: opacity .6s; width: min(640px, 92vw); }
+.banner.show { opacity: 1; }
+.banner .k { font: 600 .8rem var(--display); letter-spacing: .3em; text-transform: uppercase; color: var(--amber); }
+.banner h2 { margin: 4px 0; font: 700 clamp(1.8rem, 6vw, 3.4rem)/1 var(--display); text-transform: uppercase; text-shadow: 0 0 30px rgba(29,242,140,.5); }
+.banner p { margin: 0; color: var(--ink-2); text-shadow: 0 1px 8px #000; }
+
+/* telas */
+.screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: radial-gradient(1200px 600px at 50% 0%, rgba(29,242,140,.10), transparent 60%), rgba(5,7,6,.86); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); overflow-y: auto; }
+.screen[hidden] { display: none; }
+.panel { width: min(980px, 100%); background: rgba(11,16,13,.92); border: 1px solid var(--line); border-radius: 18px; padding: clamp(18px, 4vw, 34px); margin: auto; }
+.eyebrow { display: inline-block; font: 600 .74rem var(--display); letter-spacing: .24em; text-transform: uppercase; color: var(--amber); border: 1px solid rgba(255,181,71,.35); background: var(--amber-dim); padding: 4px 10px; border-radius: 99px; }
+.panel h1 { font: 700 clamp(2rem, 7vw, 4rem)/1 var(--display); text-transform: uppercase; margin: 14px 0 8px; letter-spacing: .01em; }
+.panel h1 .n { color: var(--neon); } .panel h1 .a { color: var(--amber); }
+.lead { color: var(--ink-2); font-size: 1.02rem; max-width: 62ch; margin: 0 0 18px; }
+.rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 20px; }
+.rules div { background: var(--bg-3); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; color: var(--ink-2); font-size: .88rem; }
+.rules b { display: block; font: 700 .8rem var(--display); letter-spacing: .14em; text-transform: uppercase; color: #fff; margin-bottom: 4px; }
+.setup { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.cfg { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--bg-2); }
+.cfg.neon { border-color: rgba(29,242,140,.35); } .cfg.amber { border-color: rgba(255,181,71,.35); }
+.cfg h3 { margin: 0 0 2px; font: 700 1.1rem var(--display); letter-spacing: .1em; text-transform: uppercase; }
+.cfg.neon h3 { color: var(--neon); } .cfg.amber h3 { color: var(--amber); }
+.cfg p { margin: 0 0 10px; color: var(--ink-3); font-size: .82rem; }
+.sl { display: grid; grid-template-columns: 96px 1fr 34px; gap: 8px; align-items: center; font-size: .84rem; color: var(--ink-2); margin: 4px 0; }
+.sl output { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-3); }
+input[type=range] { width: 100%; accent-color: var(--neon); }
+.cfg.amber input[type=range] { accent-color: var(--amber); }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.presets button { background: transparent; border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px; font-size: .74rem; color: var(--ink-2); cursor: pointer; }
+.presets button:hover { border-color: var(--ink-2); color: #fff; }
+.go { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--neon); background: var(--neon); color: #03140b; padding: 13px 22px; border-radius: 12px; font: 700 .95rem var(--display); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; text-decoration: none; }
+.btn:hover { background: #5dffb4; }
+.btn.ghost { background: transparent; color: var(--ink-2); border-color: var(--line); }
+.btn.ghost:hover { color: #fff; border-color: var(--ink-2); }
+.small { color: var(--ink-3); font-size: .8rem; margin: 0; }
+.small a { color: var(--neon); }
+.result { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+.result div { background: var(--bg-3); border: 1px solid var(--line); border-radius: 12px; padding: 12px; text-align: center; }
+.result b { display: block; font: 700 1.8rem var(--display); font-variant-numeric: tabular-nums; }
+.result span { color: var(--ink-3); font: 600 .72rem var(--display); letter-spacing: .14em; text-transform: uppercase; }
+#grafico { width: 100%; height: 170px; display: block; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; margin: 6px 0 4px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; color: var(--ink-3); font-size: .78rem; margin-bottom: 14px; }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.licao { border-left: 3px solid var(--amber); padding: 6px 0 6px 14px; color: var(--ink-2); margin: 0 0 18px; }
+.loading { position: fixed; right: 14px; top: 50%; z-index: 7; }
+.toast { position: fixed; left: 50%; bottom: 140px; transform: translateX(-50%); z-index: 8; background: rgba(5,7,6,.9); border: 1px solid var(--line); border-radius: 99px; padding: 8px 16px; font-size: .82rem; color: var(--ink-2); opacity: 0; transition: opacity .4s; pointer-events: none; max-width: 92vw; text-align: center; }
+.toast.show { opacity: 1; }
+:focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .rules, .setup, .result { grid-template-columns: 1fr; }
+  .top { grid-template-columns: 1fr 1fr; }
+  .center { grid-column: 1 / -1; grid-row: 2; justify-self: center; padding: 6px 12px; min-width: 0; }
+  .brains { flex-direction: column; align-items: stretch; }
+  .brain { display: none; }
+  .brains.show-brains .brain { display: block; width: 100%; }
+  .brain .log { display: none; }
+  .team .sub { display: none; }
+}
+@media (min-width: 761px) { #btnCerebro { display: none; } }
+@media (prefers-reduced-motion: reduce) { .banner, .symbar i, .act .b i { transition: none; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="cena" aria-label="Arena 3D do Pampa digital onde duas IAs disputam e cooperam"></canvas>
+
+<!-- HUD -->
+<div class="hud" id="hud" hidden>
+  <div class="top">
+    <div class="team neon">
+      <div class="nm">NEXO · a IA</div>
+      <div class="sc" id="scA">0</div>
+      <div class="sub" id="subA">0 nós · 0 ideias</div>
+    </div>
+    <div class="center">
+      <div class="era" id="eraName">Era 1 · Semente</div>
+      <div class="eco"><small>ECOSSISTEMA</small><span id="eco">0</span></div>
+      <div class="symbar" title="Índice de simbiose"><i id="symBar"></i></div>
+      <div class="tm"><span id="symPct">Simbiose 0%</span> · <span id="clock">0:00 / 3:35</span></div>
+    </div>
+    <div class="team amber">
+      <div class="nm">FAÍSCA · a inovação</div>
+      <div class="sc" id="scB">0</div>
+      <div class="sub" id="subB">0 nós · 0 ideias</div>
+    </div>
+  </div>
+  <div class="brains" id="brains">
+    <div class="brain neon" id="brainA"></div>
+    <div class="controls">
+      <div class="hint" id="hint">Toque no Pampa para plantar uma <b>semente de ideia</b></div>
+      <div class="row">
+        <button class="chip" data-cam="orbita" aria-pressed="true">1 Órbita</button>
+        <button class="chip" data-cam="a" aria-pressed="false">2 NEXO</button>
+        <button class="chip" data-cam="b" aria-pressed="false">3 FAÍSCA</button>
+        <button class="chip" data-cam="cine" aria-pressed="false">4 Cinema</button>
+      </div>
+      <div class="row">
+        <button class="chip" id="btnPause">⏸ Pausar</button>
+        <button class="chip" id="btnMute">♪ Som</button>
+        <button class="chip" id="btnCerebro" aria-pressed="false">Cérebros</button>
+      </div>
+    </div>
+    <div class="brain amber" id="brainB"></div>
+  </div>
+</div>
+
+<div class="banner" id="banner" aria-live="polite"><div class="k" id="bannerK"></div><h2 id="bannerH"></h2><p id="bannerP"></p></div>
+<div class="toast" id="toast" role="status"></div>
+
+<!-- Tela inicial -->
+<section class="screen" id="telaInicio">
+  <div class="panel">
+    <span class="eyebrow">Alegrete Summit 2026 · Jogo IA vs IA</span>
+    <h1><span class="n">Simbiose</span> no <span class="a">Pampa</span></h1>
+    <p class="lead">Duas inteligências artificiais disputam um Pampa digital no ritmo da música do Summit. <strong>NEXO</strong> é a IA; <strong>FAÍSCA</strong> é a inovação. Elas aprendem enquanto jogam: competem por território, mas podem construir <strong>pontes</strong>. Você é o mentor: ajuste a personalidade de cada uma e plante ideias no mapa.</p>
+    <div class="rules">
+      <div><b>Coletar e ocupar</b>As ideias nascem nas batidas da música. Cada IA as coleta para ocupar nós do Pampa: campo, cidade, escola, startup.</div>
+      <div><b>Construir pontes</b>Uma ponte entre um nó de cada IA só fica pronta se as duas investirem. Nela cresce uma torre de inovação que rende para ambas.</div>
+      <div><b>Aprender</b>Capturar o nó da outra dá lucro rápido, mas derruba pontes e confiança. Nas tempestades, só resistem os nós com ponte.</div>
+    </div>
+    <div class="setup">
+      <div class="cfg neon" id="cfgA">
+        <h3>NEXO</h3><p>A IA: dados, modelos, precisão.</p>
+      </div>
+      <div class="cfg amber" id="cfgB">
+        <h3>FAÍSCA</h3><p>A inovação: ideias, risco, criatividade.</p>
+      </div>
+    </div>
+    <div class="go">
+      <button class="btn" id="btnIniciar">▶ Iniciar o duelo</button>
+      <p class="small">Trilha: <em>Alegrete Summit</em>, Original, versão 4 (3 min 35 s). A partida dura a música inteira.<br>Atalhos: 1–4 câmeras · espaço pausa · M som.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Tela final -->
+<section class="screen" id="telaFim" hidden>
+  <div class="panel">
+    <span class="eyebrow">Fim da trilha</span>
+    <h1 id="fimTitulo">Resultado</h1>
+    <p class="lead" id="fimLead"></p>
+    <div class="result">
+      <div><b id="fimA" style="color:var(--neon)">0</b><span>NEXO</span></div>
+      <div><b id="fimEco">0</b><span>Ecossistema</span></div>
+      <div><b id="fimB" style="color:var(--amber)">0</b><span>FAÍSCA</span></div>
+    </div>
+    <canvas id="grafico" aria-label="Gráfico da vontade de cooperar de cada IA ao longo da partida"></canvas>
+    <div class="legend">
+      <span><i style="background:var(--neon)"></i>NEXO: chance de buscar simbiose</span>
+      <span><i style="background:var(--amber)"></i>FAÍSCA: chance de buscar simbiose</span>
+      <span><i style="background:#ff5d5d"></i>Capturas</span>
+      <span><i style="background:var(--sym)"></i>Pontes formadas</span>
+    </div>
+    <p class="licao" id="fimLicao"></p>
+    <div class="go">
+      <button class="btn" id="btnDeNovo">↻ Jogar de novo</button>
+      <a class="btn ghost" href="index.html">Alegrete Summit</a>
+      <a class="btn ghost" href="musicas.html">Músicas do Summit</a>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+/* ================= constantes ================= */
+const MUSICA_LOCAL = 'musicas/alegrete-summit-versao-4.mp3';
+const MUSICA_REMOTA = 'https://alegrete-summit.github.io/musicas/alegrete-summit-versao-4.mp3';
+const DURACAO_PADRAO = 215;
+const NEON = new THREE.Color('#1df28c'), AMBER = new THREE.Color('#ffb547'), SYM = new THREE.Color('#e8ffd0');
+const NEUTRO = new THREE.Color('#6d7a73');
+const R_ILHA = 62;
+const ACOES = ['COLETAR', 'EXPANDIR', 'SIMBIOSE', 'CAPTURAR'];
+const ACOES_PT = { COLETAR: 'Coletar', EXPANDIR: 'Expandir', SIMBIOSE: 'Simbiose', CAPTURAR: 'Capturar' };
+const NOMES_NOS = ['Campo', 'Cidade', 'Escola', 'Unipampa', 'Startup', 'Cooperativa', 'Pecuária', 'Arroz', 'Saúde', 'Energia', 'Água', 'Turismo', 'Cultura', 'Hub', 'Laboratório', 'Fintech', 'Logística', 'Prefeitura', 'Comunidade', 'Indústria', 'Agro 4.0', 'Futuro'];
+const ERAS = [
+  { f: 0,   k: 'Era 1', nome: 'Semente',    txt: 'Ideias brotam no ritmo da música. As IAs coletam e ocupam o Pampa.' },
+  { f: .16, k: 'Era 2', nome: 'Conexão',    txt: 'Nós vizinhos formam redes. Pontes entre rivais rendem mais para as duas.' },
+  { f: .40, k: 'Era 3', nome: 'Tempestade', txt: 'Raios atingem o Pampa. Só resistem os nós ligados por pontes de simbiose.' },
+  { f: .67, k: 'Era 4', nome: 'Simbiose',   txt: 'As torres de inovação crescem em cada ponte mantida.' },
+  { f: .88, k: 'Era 5', nome: 'Futuro',     txt: 'As pontes rendem em dobro. O que as IAs aprenderam?' },
+];
+
+/* ================= utilidades ================= */
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let rnd = mulberry32(2026);
+function hash(x, y) { let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); h ^= h >>> 16; return (h >>> 0) / 4294967296; }
+function vnoise(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi; const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf); const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; }
+function fbm(x, y) { let s = 0, a = .5, f = 1; for (let i = 0; i < 4; i++) { s += a * vnoise(x * f, y * f); f *= 2; a *= .5; } return s; }
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const rioZ = x => 14 * Math.sin(x * .045) + 6 * Math.sin(x * .11 + 1);
+function alturaBase(x, z) {
+  const r = Math.hypot(x, z);
+  const borda = smooth(R_ILHA, R_ILHA - 14, r);
+  let h = (fbm(x * .03 + 10, z * .03 + 5) - .42) * 13 * borda - (1 - borda) * 7;
+  const d = Math.abs(z - rioZ(x));
+  h = THREE.MathUtils.lerp(Math.min(h, -1.4), h, smooth(2.2, 6, d));
+  return h;
+}
+const altura = alturaBase;
+const fmtT = s => { s = Math.max(0, Math.floor(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const $ = id => document.getElementById(id);
+
+/* ================= renderer e cena ================= */
+const canvas = $('cena');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#050706');
+scene.fog = new THREE.FogExp2('#050706', .0055);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, .1, 900);
+camera.position.set(0, 70, 105);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = .06;
+controls.maxPolarAngle = Math.PI * .47; controls.minDistance = 25; controls.maxDistance = 190;
+controls.autoRotate = true; controls.autoRotateSpeed = .35;
+controls.target.set(0, 0, 0);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .85, .5, .2);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+scene.add(new THREE.HemisphereLight(0x3d7a5c, 0x050706, .9));
+const lua = new THREE.DirectionalLight(0xa8c8ff, .9); lua.position.set(-40, 80, -30); scene.add(lua);
+
+/* ----- terreno ----- */
+const SEG = 130;
+const terGeo = new THREE.PlaneGeometry(150, 150, SEG, SEG); terGeo.rotateX(-Math.PI / 2);
+{
+  const p = terGeo.attributes.position, cols = [];
+  const cBaixo = new THREE.Color('#0a1d14'), cAlto = new THREE.Color('#2a4a24'), cCapim = new THREE.Color('#5a5a22');
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), h = altura(x, z); p.setY(i, h);
+    const c = cBaixo.clone().lerp(cAlto, smooth(-2, 6, h)).lerp(cCapim, smooth(4, 9, h) * .5);
+    cols.push(c.r, c.g, c.b);
+  }
+  terGeo.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  terGeo.computeVertexNormals();
+}
+const terreno = new THREE.Mesh(terGeo, new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: .95, metalness: 0 }));
+scene.add(terreno);
+const gradeMat = new THREE.ShaderMaterial({
+  wireframe: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  uniforms: { uPulsoR: { value: 999 }, uPulso: { value: 0 }, uEnergia: { value: 0 }, uTempo: { value: 0 } },
+  vertexShader: `varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position + vec3(0., .06, 0.), 1.); }`,
+  fragmentShader: `varying vec3 vP; uniform float uPulsoR, uPulso, uEnergia, uTempo;
+    void main(){ float r = length(vP.xz); float borda = smoothstep(66., 54., r);
+      float onda = exp(-pow((r - uPulsoR) * .3, 2.)) * uPulso;
+      float base = .02 + uEnergia * .035;
+      vec3 c = mix(vec3(.11,.95,.55), vec3(1.,.71,.28), clamp(onda * .7 + .5 + .5 * sin(r * .08 - uTempo * .6), 0., 1.) * .6);
+      gl_FragColor = vec4(c * (base + onda * .45) * borda, 1.); }`
+});
+const gradeGeo = new THREE.PlaneGeometry(150, 150, 64, 64); gradeGeo.rotateX(-Math.PI / 2);
+{ const p = gradeGeo.attributes.position; for (let i = 0; i < p.count; i++) p.setY(i, altura(p.getX(i), p.getZ(i))); }
+scene.add(new THREE.Mesh(gradeGeo, gradeMat));
+
+/* ----- rio Ibirapuitã ----- */
+const rioMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { uTempo: { value: 0 } },
+  vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+  fragmentShader: `varying vec2 vUv; uniform float uTempo;
+    void main(){ float e = smoothstep(0., .5, vUv.y) * smoothstep(1., .5, vUv.y);
+      float f = .55 + .45 * sin(vUv.x * 90. - uTempo * 3.); float fim = smoothstep(0., .08, vUv.x) * smoothstep(1., .92, vUv.x);
+      gl_FragColor = vec4(vec3(.15,.75,1.) * e * f * fim * .9, 1.); }`
+});
+{
+  const pts = [], N = 120;
+  for (let i = 0; i <= N; i++) { const x = -64 + 128 * i / N; pts.push(x, rioZ(x)); }
+  const pos = [], uv = [], idx = [];
+  for (let i = 0; i <= N; i++) {
+    const x = pts[i * 2], z = pts[i * 2 + 1];
+    const dx = (pts[Math.min(i + 1, N) * 2] - pts[Math.max(i - 1, 0) * 2]), dz = (pts[Math.min(i + 1, N) * 2 + 1] - pts[Math.max(i - 1, 0) * 2 + 1]);
+    const l = Math.hypot(dx, dz), nx = -dz / l, nz = dx / l, w = 2.2;
+    pos.push(x + nx * w, -1.1, z + nz * w, x - nx * w, -1.1, z - nz * w);
+    uv.push(i / N, 0, i / N, 1);
+    if (i < N) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx);
+  const m = new THREE.Mesh(g, rioMat); m.renderOrder = 2; scene.add(m);
+}
+
+/* ----- estrelas ----- */
+{
+  const g = new THREE.BufferGeometry(), p = [];
+  for (let i = 0; i < 1800; i++) { const u = rnd() * 2 - 1, t = rnd() * Math.PI * 2, r = 380, s = Math.sqrt(1 - u * u); const y = Math.abs(u) * r; p.push(Math.cos(t) * s * r, y * .9 + 10, Math.sin(t) * s * r); }
+  g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xbfd8cc, size: 1.2, sizeAttenuation: false, transparent: true, opacity: .7, fog: false })));
+}
+
+/* ----- constelação do logo do Summit ----- */
+const logo = new THREE.Group();
+{
+  const P = ([x, y]) => new THREE.Vector3((x - 50) * 1.3, (50 - y) * 1.3, 0);
+  const tracos = [[[30, 60], [50, 22], [58, 37]], [[65, 49], [80, 77], [70, 77]], [[22, 79], [52, 70]]];
+  const lm = new THREE.LineBasicMaterial({ color: NEON, transparent: true, opacity: .55, fog: false, toneMapped: false });
+  for (const t of tracos) logo.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(t.map(P)), lm));
+  const nos = [[30, 60], [58, 37], [65, 49], [70, 77], [22, 79], [52, 70]];
+  const sg = new THREE.SphereGeometry(2, 16, 12);
+  nos.forEach((n, i) => { const m = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ color: i % 2 ? AMBER : NEON, fog: false, toneMapped: false })); m.position.copy(P(n)); logo.add(m); });
+  logo.position.set(0, 95, -210); scene.add(logo);
+}
+
+/* ----- equalizador circular ----- */
+const NBARRAS = 84;
+const eqGeo = new THREE.BoxGeometry(2.2, 1, 2.2); eqGeo.translate(0, .5, 0);
+const eq = new THREE.InstancedMesh(eqGeo, new THREE.MeshBasicMaterial({ toneMapped: false, transparent: true, opacity: .5 }), NBARRAS);
+{
+  const c = new THREE.Color();
+  for (let i = 0; i < NBARRAS; i++) { const t = Math.abs(i / NBARRAS * 2 - 1); c.copy(NEON).lerp(AMBER, t); eq.setColorAt(i, c); }
+}
+scene.add(eq);
+const eqAlt = new Float32Array(NBARRAS);
+const _m4 = new THREE.Matrix4(), _q = new THREE.Quaternion(), _s = new THREE.Vector3(), _p = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0);
+function atualizaEq(freq) {
+  for (let i = 0; i < NBARRAS; i++) {
+    const k = i < NBARRAS / 2 ? i : NBARRAS - 1 - i;
+    const bin = Math.floor(2 + Math.pow(k / (NBARRAS / 2), 1.6) * 220);
+    const alvo = freq ? Math.pow(freq[bin] / 255, 1.5) * 16 + .3 : .3 + .3 * Math.sin(clock + i);
+    eqAlt[i] += (alvo - eqAlt[i]) * .35;
+    const a = i / NBARRAS * Math.PI * 2;
+    _p.set(Math.cos(a) * 72, -6, Math.sin(a) * 72); _q.setFromAxisAngle(_up, -a); _s.set(1, eqAlt[i] + .1, 1);
+    eq.setMatrixAt(i, _m4.compose(_p, _q, _s));
+  }
+  eq.instanceMatrix.needsUpdate = true;
+}
+
+/* ================= rótulos e textos 3D ================= */
+function spriteTexto(txt, cor = '#f2f5f3', tam = 44, fundo = true) {
+  const c = document.createElement('canvas'), x = c.getContext('2d');
+  x.font = `600 ${tam}px "Chakra Petch", Inter, sans-serif`;
+  const w = Math.ceil(x.measureText(txt).width) + 28, h = tam + 22;
+  c.width = w; c.height = h;
+  x.font = `600 ${tam}px "Chakra Petch", Inter, sans-serif`;
+  if (fundo) { x.fillStyle = 'rgba(5,7,6,.72)'; x.beginPath(); x.roundRect(0, 0, w, h, h / 2); x.fill(); }
+  x.fillStyle = cor; x.textBaseline = 'middle'; x.textAlign = 'center'; x.fillText(txt, w / 2, h / 2 + 2);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false, fog: false }));
+  s.scale.set(w / h * 1.6, 1.6, 1); s.renderOrder = 10;
+  return s;
+}
+const popups = [];
+function popup(pos, txt, cor) {
+  const s = spriteTexto(txt, cor, 52, false); s.position.copy(pos); s.material.depthTest = false;
+  s.scale.multiplyScalar(1.3); scene.add(s); popups.push({ s, t: 0 });
+}
+
+/* ================= nós do Pampa ================= */
+let nos = [], arestas = [];
+const pedGeo = new THREE.CylinderGeometry(2.4, 3, 1.2, 6); pedGeo.translate(0, .6, 0);
+const cristGeo = new THREE.OctahedronGeometry(1.25, 0);
+const anelGeo = new THREE.TorusGeometry(2.6, .09, 6, 40); anelGeo.rotateX(Math.PI / 2);
+const escudoGeo = new THREE.SphereGeometry(4.2, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+
+function criaNos() {
+  rnd = mulberry32(2026);
+  const pts = [];
+  let tent = 0;
+  while (pts.length < NOMES_NOS.length && tent++ < 20000) {
+    const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * 50;
+    const x = Math.cos(a) * r, z = Math.sin(a) * r;
+    if (Math.abs(z - rioZ(x)) < 7.5) continue;
+    if (pts.some(p => Math.hypot(p.x - x, p.z - z) < 13.5)) continue;
+    pts.push({ x, z });
+  }
+  pts.forEach((p, i) => {
+    const y = Math.max(altura(p.x, p.z), -.5);
+    const g = new THREE.Group(); g.position.set(p.x, y, p.z);
+    const ped = new THREE.Mesh(pedGeo, new THREE.MeshStandardMaterial({ color: '#16211b', roughness: .6, metalness: .3, flatShading: true }));
+    const crist = new THREE.Mesh(cristGeo, new THREE.MeshBasicMaterial({ color: NEUTRO.clone(), toneMapped: false }));
+    crist.position.y = 3.4;
+    const anel = new THREE.Mesh(anelGeo, new THREE.MeshBasicMaterial({ color: NEUTRO.clone(), toneMapped: false, transparent: true, opacity: .5 }));
+    anel.position.y = 1.3;
+    const escudo = new THREE.Mesh(escudoGeo, new THREE.MeshBasicMaterial({ color: SYM, transparent: true, opacity: 0, wireframe: true, toneMapped: false, depthWrite: false }));
+    const rot = spriteTexto(NOMES_NOS[i], '#b9c4be', 40); rot.position.y = 6.4; rot.scale.multiplyScalar(.9);
+    g.add(ped, crist, anel, escudo, rot); scene.add(g);
+    nos.push({ id: i, nome: NOMES_NOS[i], pos: g.position.clone(), topo: g.position.clone().add(new THREE.Vector3(0, 3.4, 0)), dono: -1, g, crist, anel, escudo, rot, viz: [], brilho: 0, escudoT: 0 });
+  });
+  // vizinhança: 3 mais próximos, simétrica
+  const chaves = new Set();
+  nos.forEach(n => {
+    const ord = nos.filter(m => m !== n).sort((a, b) => a.pos.distanceTo(n.pos) - b.pos.distanceTo(n.pos)).slice(0, 3);
+    ord.forEach(m => { if (m.pos.distanceTo(n.pos) > 32) return; const k = Math.min(n.id, m.id) + '-' + Math.max(n.id, m.id); if (!chaves.has(k)) { chaves.add(k); arestas.push({ a: Math.min(n.id, m.id), b: Math.max(n.id, m.id) }); } });
+  });
+  arestas.forEach((e, i) => {
+    e.id = i;
+    const A = nos[e.a], B = nos[e.b];
+    nos[e.a].viz.push(e.b); nos[e.b].viz.push(e.a);
+    const pts = [];
+    for (let k = 0; k <= 16; k++) { const t = k / 16; const x = THREE.MathUtils.lerp(A.pos.x, B.pos.x, t), z = THREE.MathUtils.lerp(A.pos.z, B.pos.z, t); pts.push(new THREE.Vector3(x, Math.max(altura(x, z), -1) + .5, z)); }
+    const lg = new THREE.BufferGeometry().setFromPoints(pts);
+    const linha = new THREE.Line(lg, new THREE.LineDashedMaterial({ color: 0x51625a, dashSize: .8, gapSize: .8, transparent: true, opacity: .5 }));
+    linha.computeLineDistances(); scene.add(linha);
+    const tubo = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, .22, 6), new THREE.MeshBasicMaterial({ color: NEON, toneMapped: false, transparent: true, opacity: 0 }));
+    scene.add(tubo);
+    e.linha = linha; e.tubo = tubo; e.ponte = null; e.meio = A.pos.clone().lerp(B.pos, .5);
+    e.meio.y = Math.max(altura(e.meio.x, e.meio.z), -1);
+  });
+}
+
+/* ----- pontes de simbiose e torres ----- */
+function criaPonte(e, deQuem) {
+  const A = nos[deQuem === nos[e.a].dono ? e.a : e.b], B = nos[A.id === e.a ? e.b : e.a];
+  const p0 = A.topo.clone(), p2 = B.topo.clone();
+  const p1 = p0.clone().lerp(p2, .5); p1.y = Math.max(p0.y, p2.y) + 11;
+  const curva = new THREE.QuadraticBezierCurve3(p0, p1, p2);
+  const geo = new THREE.TubeGeometry(curva, 48, .32, 8);
+  const cA = deQuem === 0 ? NEON : AMBER, cB = deQuem === 0 ? AMBER : NEON;
+  const col = [], pos = geo.attributes.position, c = new THREE.Color();
+  for (let i = 0; i < pos.count; i++) { const t = Math.floor(i / 9) / 48; c.copy(cA).lerp(SYM, smooth(0, .5, t)).lerp(cB, smooth(.5, 1, t)); col.push(c.r, c.g, c.b); }
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, transparent: true, opacity: 1 }));
+  geo.setDrawRange(0, 0);
+  scene.add(mesh);
+  const torre = new THREE.Group(); torre.position.copy(e.meio); torre.scale.setScalar(.001); scene.add(torre);
+  const nucleo = new THREE.Mesh(new THREE.OctahedronGeometry(1.4, 1), new THREE.MeshBasicMaterial({ color: SYM, toneMapped: false, wireframe: true }));
+  nucleo.position.y = 3; torre.add(nucleo);
+  const aneis = [];
+  for (let k = 0; k < 6; k++) {
+    const r = new THREE.Mesh(new THREE.TorusGeometry(2.2 - k * .22, .12, 6, 36), new THREE.MeshBasicMaterial({ color: k % 2 ? AMBER : NEON, toneMapped: false, transparent: true, opacity: 0 }));
+    r.rotation.x = Math.PI / 2; r.position.y = 1 + k * 1.6; torre.add(r); aneis.push(r);
+  }
+  return { estado: 'oferta', de: deQuem, t0: gameTime, prog: 0, alvo: .5, nivel: 0, tNivel: 0, mesh, geo, torre, nucleo, aneis, morte: 0 };
+}
+function quebraPonte(e, motivo) {
+  const p = e.ponte; if (!p) return;
+  p.estado = 'quebrando'; p.morte = 1;
+  if (motivo) popup(e.meio.clone().setY(e.meio.y + 8), motivo, '#ff7a7a');
+}
+
+/* ================= agentes ================= */
+function criaAgente(idx, nome, cor) {
+  const g = new THREE.Group();
+  const nucleo = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1, 1), new THREE.MeshBasicMaterial({ color: cor, toneMapped: false }));
+  const anel1 = new THREE.Mesh(new THREE.TorusGeometry(2.1, .14, 8, 48), new THREE.MeshBasicMaterial({ color: cor, toneMapped: false }));
+  const anel2 = new THREE.Mesh(new THREE.TorusGeometry(2.7, .07, 6, 48), new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false, transparent: true, opacity: .5 }));
+  const casco = new THREE.Mesh(new THREE.IcosahedronGeometry(1.6, 0), new THREE.MeshStandardMaterial({ color: '#0d1511', metalness: .7, roughness: .3, flatShading: true, transparent: true, opacity: .55 }));
+  g.add(nucleo, anel1, anel2, casco);
+  const rot = spriteTexto(nome, '#' + cor.getHexString(), 46); rot.position.y = 4.2; g.add(rot);
+  scene.add(g);
+  const N = 60, tg = new THREE.BufferGeometry();
+  tg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+  const tc = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) { const f = 1 - i / N; tc[i * 3] = cor.r * f; tc[i * 3 + 1] = cor.g * f; tc[i * 3 + 2] = cor.b * f; }
+  tg.setAttribute('color', new THREE.BufferAttribute(tc, 3));
+  const rastro = new THREE.Line(tg, new THREE.LineBasicMaterial({ vertexColors: true, toneMapped: false, transparent: true, blending: THREE.AdditiveBlending }));
+  rastro.frustumCulled = false; scene.add(rastro);
+  const orbes = [];
+  for (let i = 0; i < 4; i++) { const o = new THREE.Mesh(new THREE.OctahedronGeometry(.42, 0), new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false })); o.visible = false; g.add(o); orbes.push(o); }
+  const ang = idx === 0 ? Math.PI : 0;
+  const pos = new THREE.Vector3(Math.cos(ang) * 40, 8, Math.sin(ang) * 40);
+  g.position.copy(pos);
+  return {
+    idx, nome, cor, g, nucleo, anel1, anel2, rastro, orbes, pos, vel: new THREE.Vector3(),
+    ideias: 0, pontos: 0, tarefa: null, espera: 0,
+    H: { COLETAR: 0, EXPANDIR: 0, SIMBIOSE: 0, CAPTURAR: 0 }, pi: {}, rMedio: 0, avals: [],
+    confianca: .5, amb: .6, emp: .5, cur: .5, log: [], acaoAtual: null,
+    stats: { pontes: 0, capturas: 0, ofertas: 0, aceitas: 0, expiradas: 0 }, rastroPts: [],
+  };
+}
+let agentes = [];
+const outro = a => agentes[1 - a.idx];
+function pensa(a, txt) { a.log.unshift(txt); a.log.length = Math.min(a.log.length, 3); uiDirty = true; }
+
+/* ================= ideias (faíscas coletáveis) ================= */
+let ideias = [];
+const ideiaGeo = new THREE.IcosahedronGeometry(.75, 0);
+function criaIdeia(x, z, valor = 1, publico = false) {
+  const y = Math.max(altura(x, z), -1) + 2.2;
+  const m = new THREE.Mesh(ideiaGeo, new THREE.MeshBasicMaterial({ color: publico ? '#ffe9a8' : '#dffff0', toneMapped: false }));
+  m.position.set(x, y, z); m.scale.setScalar(.01); scene.add(m);
+  const halo = new THREE.Mesh(anelGeo, new THREE.MeshBasicMaterial({ color: publico ? AMBER : NEON, transparent: true, opacity: .5, toneMapped: false }));
+  halo.scale.setScalar(.35); m.add(halo);
+  const i = { pos: m.position, base: y, m, halo, valor, publico, reservada: -1, vivo: true, t: 0 };
+  ideias.push(i); return i;
+}
+function ideiaAleatoria() {
+  for (let k = 0; k < 40; k++) {
+    const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 54;
+    const x = Math.cos(a) * r, z = Math.sin(a) * r;
+    if (Math.abs(z - rioZ(x)) < 4) continue;
+    return criaIdeia(x, z);
+  }
+}
+function removeIdeia(i) { i.vivo = false; scene.remove(i.m); i.m.geometry !== ideiaGeo && i.m.geometry.dispose(); i.m.material.dispose(); }
+
+/* ================= relâmpagos (tempestade) ================= */
+let raios = [];
+function relampago(n) {
+  const pts = [], topo = n.topo.clone().add(new THREE.Vector3(0, 60, 0));
+  for (let i = 0; i <= 14; i++) { const t = i / 14; const p = topo.clone().lerp(n.topo, t); if (i && i < 14) { p.x += (Math.random() - .5) * 5; p.z += (Math.random() - .5) * 5; } pts.push(p); }
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: '#cfe8ff', toneMapped: false, transparent: true }));
+  scene.add(l); raios.push({ l, t: 0 });
+  flash = 1;
+}
+let flash = 0;
+
+/* ================= áudio ================= */
+const audio = new Audio(); audio.crossOrigin = 'anonymous'; audio.preload = 'auto';
+let actx = null, analyser = null, ganho = null, freq = null, audioOK = false, audioUsavel = false, mudo = false;
+const fontes = location.protocol.startsWith('http') ? [MUSICA_LOCAL, MUSICA_REMOTA] : [MUSICA_REMOTA];
+let fonteIdx = 0;
+audio.src = fontes[0];
+audio.addEventListener('error', () => { if (++fonteIdx < fontes.length) { audio.src = fontes[fonteIdx]; if (jogando) audio.play().catch(() => {}); } else { audioOK = false; toast('Música indisponível: a partida segue com batida sintética.'); } });
+audio.addEventListener('ended', () => { if (jogando) fimDeJogo(); });
+function iniciaAudio() {
+  try {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = actx.createMediaElementSource(audio);
+      analyser = actx.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = .72;
+      ganho = actx.createGain(); src.connect(analyser); analyser.connect(ganho); ganho.connect(actx.destination);
+      freq = new Uint8Array(analyser.frequencyBinCount);
+    }
+    actx.resume();
+  } catch (e) { analyser = null; }
+  audio.currentTime = 0;
+  return audio.play().then(() => { audioOK = true; }).catch(() => { audioOK = false; toast('Toque em ♪ Som para ativar a música.'); });
+}
+// detecção de batidas pela energia dos graves
+const histEnergia = []; let ultimaBatida = 0, silencioT = 0, energiaSuave = 0;
+function analisaAudio(dt) {
+  let energia = 0, batida = false;
+  if (audioOK && analyser && !audio.paused) {
+    analyser.getByteFrequencyData(freq);
+    let s = 0; for (let i = 1; i < 10; i++) s += freq[i]; energia = s / (9 * 255);
+    let tot = 0; for (let i = 0; i < 200; i++) tot += freq[i];
+    if (tot === 0) silencioT += dt; else { silencioT = 0; audioUsavel = true; }
+    histEnergia.push(energia); if (histEnergia.length > 50) histEnergia.shift();
+    const media = histEnergia.reduce((a, b) => a + b, 0) / histEnergia.length;
+    if (energia > media * 1.22 && energia > .3 && gameTime - ultimaBatida > .3) { batida = true; ultimaBatida = gameTime; }
+    else if (gameTime - ultimaBatida > 1.2) { batida = true; ultimaBatida = gameTime; } // trechos sem graves
+  }
+  const sintetico = !audioOK || !analyser || silencioT > 2.5;
+  if (sintetico) {
+    energia = .35 + .25 * Math.max(0, Math.sin(gameTime * Math.PI * 2 * 1.05));
+    if (gameTime - ultimaBatida > .52) { batida = true; ultimaBatida = gameTime; }
+  }
+  energiaSuave += (energia - energiaSuave) * .2;
+  return { energia: energiaSuave, batida, freq: sintetico ? null : freq };
+}
+
+/* ================= estado do jogo ================= */
+let jogando = false, pausado = false, gameTime = 0, duracao = DURACAO_PADRAO, clock = 0;
+let eraIdx = -1, tickRenda = 0, tempestadeT = 0, cooldownSemente = 0, uiDirty = true;
+let historico = [], eventos = [];
+let camModo = 'orbita', cineT = 0, cineSub = 0;
+
+function era() { const f = gameTime / duracao; let k = 0; ERAS.forEach((e, i) => { if (f >= e.f) k = i; }); return k; }
+
+function reinicia() {
+  // limpa cena dinâmica
+  ideias.forEach(removeIdeia); ideias = [];
+  arestas.forEach(e => { if (e.ponte) { scene.remove(e.ponte.mesh, e.ponte.torre); } e.ponte = null; });
+  nos.forEach(n => { n.dono = -1; pintaNo(n); });
+  agentes.forEach(a => { scene.remove(a.g, a.rastro); });
+  agentes = [criaAgente(0, 'NEXO', NEON), criaAgente(1, 'FAÍSCA', AMBER)];
+  [0, 1].forEach(i => Object.assign(agentes[i], perfis[i]));
+  gameTime = 0; ultimaBatida = 0; eraIdx = -1; tickRenda = 0; tempestadeT = 0; historico = []; eventos = []; flash = 0;
+  for (let i = 0; i < 8; i++) ideiaAleatoria();
+  montaCerebros();
+}
+
+function pintaNo(n) {
+  const c = n.dono === 0 ? NEON : n.dono === 1 ? AMBER : NEUTRO;
+  n.crist.material.color.copy(c); n.anel.material.color.copy(c);
+  n.anel.material.opacity = n.dono < 0 ? .35 : .9;
+  n.rot.material.opacity = n.dono < 0 ? .7 : 1;
+  arestas.forEach(e => {
+    if (e.a !== n.id && e.b !== n.id) return;
+    const da = nos[e.a].dono, db = nos[e.b].dono;
+    e.mesmo = da >= 0 && da === db;
+    if (e.mesmo) e.tubo.material.color.copy(da === 0 ? NEON : AMBER);
+  });
+  n.brilho = 1;
+}
+function noTemPonte(n) { return arestas.some(e => e.ponte && e.ponte.estado === 'ativa' && (e.a === n.id || e.b === n.id)); }
+
+/* ================= IA: decisão e aprendizado ================= */
+function viaveis(a) {
+  const v = [];
+  const rival = outro(a);
+  if (a.ideias < 4 && ideias.some(i => i.vivo && i.reservada !== rival.idx)) v.push('COLETAR');
+  if (a.ideias >= 1 && nos.some(n => n.dono < 0)) v.push('EXPANDIR');
+  if (a.ideias >= 1 && (ofertasPendentes(a).length || arestasCruzadasLivres(a).length)) v.push('SIMBIOSE');
+  if (a.ideias >= 2 && nos.some(n => n.dono === rival.idx)) v.push('CAPTURAR');
+  return v;
+}
+const ofertasPendentes = a => arestas.filter(e => e.ponte && e.ponte.estado === 'oferta' && e.ponte.de !== a.idx);
+const arestasCruzadasLivres = a => arestas.filter(e => !e.ponte && ((nos[e.a].dono === a.idx && nos[e.b].dono === 1 - a.idx) || (nos[e.b].dono === a.idx && nos[e.a].dono === 1 - a.idx)));
+
+function politica(a, v) {
+  const z = {};
+  const tau = .35 + a.cur * 1.1;
+  for (const k of v) {
+    let b = a.H[k];
+    if (k === 'SIMBIOSE') b += (a.confianca - .5) * 2.2 + a.emp * .9 + (ofertasPendentes(a).length ? .9 : 0);
+    if (k === 'CAPTURAR') b += (.5 - a.confianca) * 2.4 + a.amb * .7 - a.emp * 1.1;
+    if (k === 'EXPANDIR') b += a.amb * .3;
+    if (k === 'COLETAR') b += (a.ideias === 0 ? 3 : 0) - a.ideias * .25;
+    z[k] = b / tau;
+  }
+  const mx = Math.max(...Object.values(z)); let s = 0; const p = {};
+  for (const k of v) { p[k] = Math.exp(z[k] - mx); s += p[k]; }
+  for (const k of v) p[k] /= s;
+  return p;
+}
+function sorteia(p) { let r = Math.random(); for (const k in p) { r -= p[k]; if (r <= 0) return k; } return Object.keys(p)[0]; }
+
+function decide(a) {
+  const v = viaveis(a);
+  if (!v.length) { a.tarefa = { tipo: 'VAGAR', alvo: vagar(a), t: 0 }; a.acaoAtual = null; return; }
+  const p = politica(a, v);
+  a.pi = p; uiDirty = true;
+  const acao = sorteia(p);
+  a.acaoAtual = acao;
+  const rival = outro(a);
+  if (acao === 'COLETAR') {
+    let melhor = null, d = 1e9;
+    for (const i of ideias) { if (!i.vivo || i.reservada === rival.idx) continue; const dd = i.pos.distanceTo(a.pos) - (i.publico ? 10 : 0); if (dd < d) { d = dd; melhor = i; } }
+    melhor.reservada = a.idx;
+    a.tarefa = { tipo: acao, ideia: melhor, alvo: melhor.pos, v, p };
+  } else if (acao === 'EXPANDIR') {
+    let melhor = null, s = 1e9;
+    for (const n of nos) { if (n.dono >= 0) continue; const viz = n.viz.filter(j => nos[j].dono === a.idx).length; const sc = n.pos.distanceTo(a.pos) - viz * 14; if (sc < s) { s = sc; melhor = n; } }
+    a.tarefa = { tipo: acao, no: melhor, alvo: melhor.topo, v, p };
+    pensa(a, `Vou ocupar ${melhor.nome}`);
+  } else if (acao === 'SIMBIOSE') {
+    const pend = ofertasPendentes(a);
+    if (pend.length) {
+      const e = pend.sort((x, y) => x.meio.distanceTo(a.pos) - y.meio.distanceTo(a.pos))[0];
+      a.tarefa = { tipo: acao, aresta: e, aceitar: true, alvo: e.meio.clone().setY(e.meio.y + 9), v, p };
+      pensa(a, `Aceito a ponte ${nos[e.a].nome} ↔ ${nos[e.b].nome}`);
+    } else {
+      const e = arestasCruzadasLivres(a).sort((x, y) => x.meio.distanceTo(a.pos) - y.meio.distanceTo(a.pos))[0];
+      a.tarefa = { tipo: acao, aresta: e, aceitar: false, alvo: e.meio.clone().setY(e.meio.y + 9), v, p };
+      pensa(a, `Proponho ponte ${nos[e.a].nome} ↔ ${nos[e.b].nome}`);
+    }
+  } else if (acao === 'CAPTURAR') {
+    let melhor = null, s = -1e9;
+    for (const n of nos) { if (n.dono !== rival.idx) continue; const val = n.viz.filter(j => nos[j].dono === rival.idx).length * 6 - n.pos.distanceTo(a.pos) * .3 + (noTemPonte(n) ? 4 * a.amb - 8 * a.emp : 0); if (val > s) { s = val; melhor = n; } }
+    a.tarefa = { tipo: acao, no: melhor, alvo: melhor.topo, v, p };
+    pensa(a, `Mirando ${melhor.nome} (confiança ${a.confianca.toFixed(2)})`);
+  }
+}
+function vagar(a) {
+  const meus = nos.filter(n => n.dono === a.idx);
+  const base = meus.length ? meus[Math.floor(Math.random() * meus.length)].pos : new THREE.Vector3();
+  return base.clone().add(new THREE.Vector3((Math.random() - .5) * 16, 6, (Math.random() - .5) * 16));
+}
+
+// atualização por gradiente (bandit) com recompensa atrasada
+function agendaAvaliacao(a, acao, v, p, imediato = 0) {
+  a.avals.push({ acao, v, p, t0: gameTime, meu0: a.pontos, rival0: outro(a).pontos, imediato });
+}
+function aprende(a, acao, v, p, r) {
+  const alfa = .35;
+  const adv = r - a.rMedio;
+  a.rMedio += .12 * (r - a.rMedio);
+  for (const k of v) a.H[k] += alfa * adv * ((k === acao ? 1 : 0) - (p[k] || 0));
+  for (const k of ACOES) a.H[k] = clamp(a.H[k], -4, 4);
+  uiDirty = true;
+}
+function processaAvaliacoes(a) {
+  const JAN = 9;
+  for (let i = a.avals.length - 1; i >= 0; i--) {
+    const ev = a.avals[i];
+    if (gameTime - ev.t0 < JAN) continue;
+    const meu = (a.pontos - ev.meu0) / JAN, rival = (outro(a).pontos - ev.rival0) / JAN;
+    const r = (a.amb * meu + a.emp * .6 * rival) / 4 + ev.imediato;
+    aprende(a, ev.acao, ev.v, ev.p, r);
+    a.avals.splice(i, 1);
+  }
+}
+
+function executa(a) {
+  const t = a.tarefa, rival = outro(a);
+  if (t.tipo === 'COLETAR') {
+    if (t.ideia.vivo) {
+      a.ideias = Math.min(4, a.ideias + t.ideia.valor);
+      if (t.ideia.publico) { pensa(a, 'Peguei uma semente do público!'); popup(t.ideia.pos.clone().setY(t.ideia.pos.y + 3), '+2 ideias', '#ffe9a8'); }
+      removeIdeia(t.ideia);
+    }
+  } else if (t.tipo === 'EXPANDIR') {
+    if (t.no.dono < 0) {
+      a.ideias--; t.no.dono = a.idx; pintaNo(t.no);
+      popup(t.no.topo.clone().setY(t.no.topo.y + 4), `${a.nome} ocupa ${t.no.nome}`, '#' + a.cor.getHexString());
+      agendaAvaliacao(a, t.tipo, t.v, t.p);
+    }
+  } else if (t.tipo === 'SIMBIOSE') {
+    const e = t.aresta;
+    if (t.aceitar && e.ponte && e.ponte.estado === 'oferta' && e.ponte.de === rival.idx) {
+      a.ideias--; e.ponte.estado = 'ativa'; e.ponte.alvo = 1; e.ponte.tAtiva = gameTime;
+      a.stats.aceitas++; a.stats.pontes++; rival.stats.pontes++;
+      a.confianca = clamp(a.confianca + .12, 0, 1); rival.confianca = clamp(rival.confianca + .18, 0, 1);
+      popup(e.meio.clone().setY(e.meio.y + 14), 'PONTE DE SIMBIOSE!', '#e8ffd0');
+      pensa(a, `Ponte com ${rival.nome} formada!`); pensa(rival, `${a.nome} aceitou minha ponte!`);
+      eventos.push({ t: gameTime, tipo: 'ponte' });
+      agendaAvaliacao(a, 'SIMBIOSE', t.v, t.p, .4);
+      // a oferta original do rival também é avaliada a partir de agora
+      if (e.ponte.avalOferta) { const o = e.ponte.avalOferta; agendaAvaliacao(rival, 'SIMBIOSE', o.v, o.p, .4); e.ponte.avalOferta = null; }
+    } else if (!t.aceitar && !e.ponte && nos[e.a].dono >= 0 && nos[e.b].dono >= 0 && nos[e.a].dono !== nos[e.b].dono) {
+      a.ideias--; e.ponte = criaPonte(e, a.idx); a.stats.ofertas++;
+      e.ponte.avalOferta = { v: t.v, p: t.p };
+      popup(e.meio.clone().setY(e.meio.y + 12), `${a.nome} oferece ponte`, '#' + a.cor.getHexString());
+    }
+  } else if (t.tipo === 'CAPTURAR') {
+    const n = t.no;
+    if (n.dono === rival.idx && a.ideias >= 2) {
+      a.ideias -= 2; n.dono = a.idx; pintaNo(n);
+      a.pontos += 6; a.stats.capturas++;
+      rival.confianca = clamp(rival.confianca - .28, 0, 1);
+      eventos.push({ t: gameTime, tipo: 'captura' });
+      let quebrou = 0;
+      arestas.forEach(e => { if (e.ponte && (e.a === n.id || e.b === n.id)) { quebrou++; quebraPonte(e, 'ponte rompida'); } });
+      if (quebrou) rival.confianca = clamp(rival.confianca - .15, 0, 1);
+      popup(n.topo.clone().setY(n.topo.y + 5), `${a.nome} captura ${n.nome}  +6`, '#ff8f7a');
+      pensa(a, `Capturei ${n.nome}${quebrou ? ' (ponte rompida)' : ''}`);
+      pensa(rival, `${a.nome} tomou ${n.nome}. Confiança ${rival.confianca.toFixed(2)}`);
+      agendaAvaliacao(a, t.tipo, t.v, t.p, 0);
+    }
+  }
+}
+
+function atualizaAgente(a, dt) {
+  // validade da tarefa
+  const t = a.tarefa;
+  if (t) {
+    let ok = true;
+    if (t.tipo === 'COLETAR') ok = t.ideia.vivo;
+    if (t.tipo === 'EXPANDIR') ok = t.no.dono < 0 && a.ideias >= 1;
+    if (t.tipo === 'CAPTURAR') ok = t.no.dono === outro(a).idx && a.ideias >= 2;
+    if (t.tipo === 'SIMBIOSE') { const e = t.aresta; ok = a.ideias >= 1 && (t.aceitar ? (e.ponte && e.ponte.estado === 'oferta') : (!e.ponte && nos[e.a].dono >= 0 && nos[e.b].dono >= 0 && nos[e.a].dono !== nos[e.b].dono)); }
+    if (t.tipo === 'VAGAR') { t.t += dt; ok = t.t < 1.6; }
+    if (!ok) { if (t.ideia && t.ideia.reservada === a.idx) t.ideia.reservada = -1; a.tarefa = null; }
+  }
+  if (!a.tarefa) { a.espera -= dt; if (a.espera <= 0) { decide(a); a.espera = .15; } }
+  // movimento (steering com chegada)
+  const alvo = a.tarefa ? a.tarefa.alvo : a.pos;
+  const voo = _p.copy(alvo); if (!a.tarefa || a.tarefa.tipo !== 'SIMBIOSE') voo.y += 2.2;
+  const desejo = voo.sub(a.pos); const d = desejo.length();
+  const vmax = 17 + (era() >= 3 ? 3 : 0);
+  const vel = d < 8 ? vmax * d / 8 : vmax;
+  desejo.setLength(Math.max(vel, .01));
+  const steer = desejo.sub(a.vel).clampLength(0, 40 * dt);
+  a.vel.add(steer);
+  // separação simples entre agentes
+  const rv = a.pos.clone().sub(outro(a).pos); const rd = rv.length();
+  if (rd < 5 && rd > .01) a.vel.add(rv.setLength((5 - rd) * 6 * dt));
+  a.pos.addScaledVector(a.vel, dt);
+  const chao = Math.max(altura(a.pos.x, a.pos.z), -1) + 3; if (a.pos.y < chao) a.pos.y = chao;
+  if (a.tarefa && a.tarefa.tipo !== 'VAGAR' && a.pos.distanceTo(_p.copy(a.tarefa.alvo).setY(a.tarefa.alvo.y + (a.tarefa.tipo === 'SIMBIOSE' ? 0 : 2.2))) < 2.4) {
+    executa(a); a.tarefa = null; a.espera = .25;
+  }
+  // visual
+  a.g.position.copy(a.pos);
+  a.anel1.rotation.x += dt * 1.6; a.anel1.rotation.y += dt * .9;
+  a.anel2.rotation.y -= dt * 1.2; a.anel2.rotation.z += dt * .5;
+  a.orbes.forEach((o, i) => { o.visible = i < a.ideias; const ang = clock * 3 + i * Math.PI / 2; o.position.set(Math.cos(ang) * 2.9, Math.sin(ang * 1.3) * .6, Math.sin(ang) * 2.9); o.rotation.y += dt * 4; });
+  a.rastroPts.unshift(a.pos.x, a.pos.y, a.pos.z); if (a.rastroPts.length > 180) a.rastroPts.length = 180;
+  const arr = a.rastro.geometry.attributes.position.array;
+  for (let i = 0; i < 60; i++) { const j = Math.min(i * 3, a.rastroPts.length - 3); arr[i * 3] = a.rastroPts[j]; arr[i * 3 + 1] = a.rastroPts[j + 1]; arr[i * 3 + 2] = a.rastroPts[j + 2]; }
+  a.rastro.geometry.attributes.position.needsUpdate = true;
+  // confiança volta devagar ao neutro (perdão)
+  a.confianca += (.5 - a.confianca) * dt * (.004 + a.emp * .018);
+  processaAvaliacoes(a);
+}
+
+/* ================= economia ================= */
+function renda() {
+  const futuro = era() === 4 ? 2 : 1;
+  const ganho = [0, 0];
+  nos.forEach(n => { if (n.dono >= 0) ganho[n.dono] += 1; });
+  arestas.forEach(e => {
+    if (e.mesmo) ganho[nos[e.a].dono] += 1;
+    if (e.ponte && e.ponte.estado === 'ativa') { const v = (2 + e.ponte.nivel) * futuro; ganho[0] += v; ganho[1] += v; }
+  });
+  agentes[0].pontos += ganho[0]; agentes[1].pontos += ganho[1];
+  uiDirty = true;
+}
+function indiceSimbiose() {
+  const cruz = arestas.filter(e => nos[e.a].dono >= 0 && nos[e.b].dono >= 0 && nos[e.a].dono !== nos[e.b].dono);
+  if (!cruz.length) return 0;
+  return cruz.filter(e => e.ponte && e.ponte.estado === 'ativa').length / cruz.length;
+}
+
+/* ================= laço principal ================= */
+function atualizaJogo(dt, ritmo) {
+  if (audioOK && !audio.paused && isFinite(audio.duration)) { duracao = audio.duration; gameTime = audio.currentTime; }
+  else gameTime += dt;
+  if (gameTime >= duracao) { fimDeJogo(); return; }
+
+  const k = era();
+  if (k !== eraIdx) { eraIdx = k; mostraBanner(ERAS[k]); $('eraName').textContent = `${ERAS[k].k} · ${ERAS[k].nome}`; }
+
+  // ideias nascem nas batidas
+  if (ritmo.batida) {
+    gradeMat.uniforms.uPulsoR.value = 0; gradeMat.uniforms.uPulso.value = 1;
+    const max = k === 2 ? 7 : 13, chance = k === 0 ? .8 : k === 2 ? .35 : .55;
+    if (ideias.filter(i => i.vivo).length < max && Math.random() < chance) ideiaAleatoria();
+    logo.scale.setScalar(1.08);
+  }
+  // tempestade
+  if (k === 2) {
+    tempestadeT -= dt;
+    if (tempestadeT <= 0 && ritmo.batida) {
+      tempestadeT = 7 + Math.random() * 4;
+      const alvos = nos.filter(n => n.dono >= 0);
+      if (alvos.length) {
+        const n = alvos[Math.floor(Math.random() * alvos.length)];
+        relampago(n);
+        if (noTemPonte(n)) { n.escudoT = 1.6; popup(n.topo.clone().setY(n.topo.y + 5), 'Protegido pela simbiose', '#e8ffd0'); }
+        else {
+          const dono = agentes[n.dono]; n.dono = -1; pintaNo(n);
+          arestas.forEach(e => { if (e.ponte && e.ponte.estado === 'oferta' && (e.a === n.id || e.b === n.id)) quebraPonte(e); });
+          popup(n.topo.clone().setY(n.topo.y + 5), `Raio! ${n.nome} desconectado`, '#cfe8ff');
+          pensa(dono, `A tempestade levou ${n.nome}`);
+        }
+      }
+    }
+  }
+  // renda a cada segundo
+  tickRenda += dt; while (tickRenda >= 1) { tickRenda -= 1; renda(); }
+  // ofertas expiram
+  arestas.forEach(e => {
+    const p = e.ponte; if (!p) return;
+    if (p.estado === 'oferta' && gameTime - p.t0 > 22) {
+      const a = agentes[p.de]; a.stats.expiradas++;
+      a.confianca = clamp(a.confianca - .1, 0, 1);
+      if (p.avalOferta) aprende(a, 'SIMBIOSE', p.avalOferta.v, p.avalOferta.p, -.5);
+      pensa(a, `${outro(a).nome} ignorou minha ponte`);
+      quebraPonte(e, 'oferta expirou');
+    }
+    // torre cresce
+    if (p.estado === 'ativa') {
+      p.tNivel += dt; if (p.tNivel > 9 && p.nivel < 5) { p.tNivel = 0; p.nivel++; popup(e.meio.clone().setY(e.meio.y + 4 + p.nivel * 1.6), `Torre de inovação nível ${p.nivel + 1}`, '#e8ffd0'); }
+    }
+  });
+  agentes.forEach(a => atualizaAgente(a, dt));
+  // histórico para o gráfico
+  if (!historico.length || gameTime - historico[historico.length - 1].t > 1.5) {
+    const ps = agentes.map(a => { const v = ['COLETAR', 'EXPANDIR', 'SIMBIOSE', 'CAPTURAR']; const p = politica(a, v); return p.SIMBIOSE / (p.SIMBIOSE + p.CAPTURAR); });
+    historico.push({ t: gameTime, a: ps[0], b: ps[1] });
+  }
+  cooldownSemente = Math.max(0, cooldownSemente - dt);
+}
+
+function atualizaVisual(dt, ritmo) {
+  gradeMat.uniforms.uTempo.value = clock; rioMat.uniforms.uTempo.value = clock;
+  gradeMat.uniforms.uPulsoR.value += dt * 70; gradeMat.uniforms.uPulso.value *= Math.exp(-dt * 1.4);
+  gradeMat.uniforms.uEnergia.value = ritmo.energia;
+  bloom.strength = .75 + ritmo.energia * .5 + flash * 1.2;
+  flash *= Math.exp(-dt * 5);
+  logo.scale.lerp(_s.set(1, 1, 1), dt * 4);
+  logo.children.forEach((c, i) => { if (c.isMesh) c.scale.setScalar(1 + ritmo.energia * .8 * ((i % 2) + .5)); });
+  logo.lookAt(camera.position.x * .2, logo.position.y, camera.position.z);
+  atualizaEq(ritmo.freq);
+  nos.forEach(n => {
+    n.crist.rotation.y += dt * (n.dono < 0 ? .4 : 1.4);
+    n.crist.position.y = 3.4 + Math.sin(clock * 2 + n.id) * .25;
+    n.brilho *= Math.exp(-dt * 2);
+    const s = 1 + n.brilho * .8 + (n.dono >= 0 ? ritmo.energia * .35 : 0); n.crist.scale.setScalar(s);
+    n.anel.scale.setScalar(1 + ritmo.energia * .25);
+    n.escudoT = Math.max(0, n.escudoT - dt); n.escudo.material.opacity = Math.min(.6, n.escudoT);
+  });
+  arestas.forEach(e => {
+    const alvo = e.mesmo ? .85 : 0; e.tubo.material.opacity += (alvo - e.tubo.material.opacity) * Math.min(1, dt * 4);
+    e.tubo.visible = e.tubo.material.opacity > .01;
+    e.linha.visible = !e.mesmo && !(e.ponte && e.ponte.estado === 'ativa');
+    const p = e.ponte; if (!p) return;
+    p.prog += (p.alvo - p.prog) * Math.min(1, dt * 2.2);
+    p.geo.setDrawRange(0, Math.floor(p.geo.index.count * p.prog / 6) * 6);
+    if (p.estado === 'oferta') p.mesh.material.opacity = .55 + .45 * Math.sin(clock * 6);
+    const tAlvo = p.estado === 'ativa' ? .55 + p.nivel * .13 : .001;
+    p.torre.scale.setScalar(THREE.MathUtils.lerp(p.torre.scale.x, tAlvo, Math.min(1, dt * 2)));
+    p.torre.children.forEach((c, i) => { if (i === 0) { c.rotation.y += dt * 1.5; c.rotation.x += dt * .7; c.position.y = 3 + p.nivel * 1.6 + Math.sin(clock * 2) * .3; } else { c.rotation.z += dt * (i % 2 ? 1 : -1) * (1 + i * .2); c.material.opacity = (i - 1) <= p.nivel ? .9 : 0; c.position.y = 1 + (i - 1) * 1.6 + ritmo.energia * (i - 1) * .4; } });
+    if (p.estado === 'quebrando') {
+      p.morte -= dt * .8; p.mesh.material.opacity = Math.max(0, p.morte); p.torre.scale.multiplyScalar(Math.exp(-dt * 4));
+      if (p.morte <= 0) { scene.remove(p.mesh, p.torre); p.geo.dispose(); e.ponte = null; }
+    }
+  });
+  ideias.forEach(i => { if (!i.vivo) return; i.t += dt; i.m.scale.setScalar(Math.min(1, i.t * 3) * (1 + ritmo.energia * .4)); i.pos.y = i.base + Math.sin(clock * 2.5 + i.base) * .4; i.m.rotation.y += dt * 2; i.halo.rotation.x = Math.sin(clock + i.base); });
+  ideias = ideias.filter(i => i.vivo);
+  for (let i = popups.length - 1; i >= 0; i--) { const p = popups[i]; p.t += dt; p.s.position.y += dt * 2.2; p.s.material.opacity = 1 - smooth(1.1, 2, p.t); if (p.t > 2) { scene.remove(p.s); p.s.material.map.dispose(); p.s.material.dispose(); popups.splice(i, 1); } }
+  for (let i = raios.length - 1; i >= 0; i--) { const r = raios[i]; r.t += dt; r.l.material.opacity = Math.max(0, 1 - r.t * 2.5) * (Math.random() > .3 ? 1 : .2); if (r.t > .45) { scene.remove(r.l); r.l.geometry.dispose(); raios.splice(i, 1); } }
+}
+
+/* ================= câmera ================= */
+const camAlvo = new THREE.Vector3(), camPos = new THREE.Vector3();
+function atualizaCamera(dt) {
+  let modo = camModo;
+  if (camModo === 'cine') {
+    cineT -= dt; if (cineT <= 0) { cineT = 7; cineSub = (cineSub + 1) % 4; }
+    modo = ['alto', 'a', 'b', 'ponte'][cineSub];
+  }
+  if (modo === 'orbita') { controls.enabled = true; controls.autoRotate = !pausado; controls.update(); return; }
+  controls.enabled = false;
+  let alvo, pos;
+  if (modo === 'a' || modo === 'b') {
+    const a = agentes[modo === 'a' ? 0 : 1];
+    const dir = a.vel.lengthSq() > 1 ? a.vel.clone().setY(0).normalize() : new THREE.Vector3(0, 0, 1);
+    alvo = a.pos.clone().addScaledVector(dir, 6); pos = a.pos.clone().addScaledVector(dir, -20).add(new THREE.Vector3(0, 10, 0));
+  } else if (modo === 'ponte') {
+    const e = arestas.find(e => e.ponte && e.ponte.estado === 'ativa') || arestas[0];
+    alvo = e.meio.clone().setY(e.meio.y + 5);
+    const ang = clock * .25; pos = alvo.clone().add(new THREE.Vector3(Math.cos(ang) * 26, 9, Math.sin(ang) * 26));
+  } else {
+    const ang = clock * .06; alvo = new THREE.Vector3(); pos = new THREE.Vector3(Math.cos(ang) * 95, 75, Math.sin(ang) * 95);
+  }
+  const k = 1 - Math.exp(-dt * 2.5);
+  camAlvo.lerp(alvo, k); camPos.lerp(pos, k);
+  camera.position.copy(camPos); camera.lookAt(camAlvo);
+  controls.target.copy(camAlvo);
+}
+function setCam(m) {
+  camModo = m; camAlvo.copy(controls.target); camPos.copy(camera.position); cineT = 0;
+  document.querySelectorAll('[data-cam]').forEach(b => b.setAttribute('aria-pressed', b.dataset.cam === m));
+}
+
+/* ================= interface ================= */
+const perfis = [{ amb: .6, emp: .5, cur: .5 }, { amb: .7, emp: .4, cur: .6 }];
+const PRESETS = { 'Equilibrada': { amb: .6, emp: .5, cur: .5 }, 'Competitiva': { amb: 1, emp: .1, cur: .4 }, 'Colaborativa': { amb: .4, emp: .9, cur: .4 }, 'Curiosa': { amb: .6, emp: .5, cur: 1 } };
+function montaConfig(i) {
+  const el = $(i ? 'cfgB' : 'cfgA');
+  const campos = [['amb', 'Ambição', 'Peso do próprio placar'], ['emp', 'Empatia', 'Peso do sucesso da outra IA'], ['cur', 'Curiosidade', 'Quanto explora ações novas']];
+  campos.forEach(([k, nome, dica]) => {
+    const id = `cfg${i}${k}`;
+    const lab = document.createElement('label'); lab.className = 'sl'; lab.title = dica;
+    lab.innerHTML = `<span>${nome}</span><input type="range" id="${id}" min="0" max="1" step="0.05" value="${perfis[i][k]}" aria-describedby="${id}d"><output id="${id}o">${perfis[i][k].toFixed(2)}</output><span id="${id}d" hidden>${dica}</span>`;
+    el.appendChild(lab);
+    lab.querySelector('input').addEventListener('input', ev => { perfis[i][k] = +ev.target.value; $(id + 'o').textContent = (+ev.target.value).toFixed(2); });
+  });
+  const pr = document.createElement('div'); pr.className = 'presets';
+  Object.entries(PRESETS).forEach(([nome, v]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = nome; b.onclick = () => { Object.assign(perfis[i], v); for (const k in v) { $(`cfg${i}${k}`).value = v[k]; $(`cfg${i}${k}o`).textContent = v[k].toFixed(2); } }; pr.appendChild(b); });
+  el.appendChild(pr);
+}
+montaConfig(0); montaConfig(1);
+
+function montaCerebros() {
+  agentes.forEach((a, i) => {
+    const el = $(i ? 'brainB' : 'brainA');
+    el.innerHTML = `<h3>${a.nome} <span>tendência aprendida</span></h3>` +
+      ACOES.map(k => `<div class="act" data-k="${k}"><span class="lb">${ACOES_PT[k]}</span><span class="b"><i></i></span><span class="pc">0%</span></div>`).join('') +
+      `<div class="trust"><span>Confiança</span><span class="b"><i></i></span><span class="tv">0.50</span></div><div class="log"></div>`;
+  });
+}
+function atualizaUI() {
+  const [A, B] = agentes;
+  $('scA').textContent = Math.round(A.pontos); $('scB').textContent = Math.round(B.pontos);
+  const nA = nos.filter(n => n.dono === 0).length, nB = nos.filter(n => n.dono === 1).length;
+  $('subA').textContent = `${nA} nós · ${A.ideias} ideias · ${A.stats.pontes} pontes`;
+  $('subB').textContent = `${nB} nós · ${B.ideias} ideias · ${B.stats.pontes} pontes`;
+  $('eco').textContent = Math.round(A.pontos + B.pontos);
+  const si = indiceSimbiose(); $('symBar').style.width = (si * 100).toFixed(0) + '%'; $('symPct').textContent = `Simbiose ${(si * 100).toFixed(0)}%`;
+  $('clock').textContent = `${fmtT(gameTime)} / ${fmtT(duracao)}`;
+  if (!uiDirty) return; uiDirty = false;
+  agentes.forEach((a, i) => {
+    const el = $(i ? 'brainB' : 'brainA');
+    const p = politica(a, ACOES);
+    el.querySelectorAll('.act').forEach(r => { const k = r.dataset.k; r.querySelector('i').style.width = (p[k] * 100).toFixed(0) + '%'; r.querySelector('.pc').textContent = (p[k] * 100).toFixed(0) + '%'; r.classList.toggle('on', a.acaoAtual === k); });
+    el.querySelector('.trust i').style.width = (a.confianca * 100) + '%'; el.querySelector('.tv').textContent = a.confianca.toFixed(2);
+    el.querySelector('.log').innerHTML = a.log.map(t => `<div>${t}</div>`).join('');
+  });
+}
+let bannerTimer;
+function mostraBanner(e) {
+  $('bannerK').textContent = e.k; $('bannerH').textContent = e.nome; $('bannerP').textContent = e.txt;
+  $('banner').classList.add('show'); clearTimeout(bannerTimer); bannerTimer = setTimeout(() => $('banner').classList.remove('show'), 4200);
+}
+let toastTimer;
+function toast(t) { $('toast').textContent = t; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 3500); }
+
+/* ----- semente do público (clique no terreno) ----- */
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+let downPos = null;
+canvas.addEventListener('pointerdown', e => { downPos = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointerup', e => {
+  if (!jogando || pausado || !downPos || Math.hypot(e.clientX - downPos[0], e.clientY - downPos[1]) > 6) return;
+  mouse.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  ray.setFromCamera(mouse, camera);
+  const hit = ray.intersectObject(terreno)[0];
+  if (!hit || Math.hypot(hit.point.x, hit.point.z) > 56) return;
+  if (cooldownSemente > 0) { toast(`Nova semente em ${cooldownSemente.toFixed(1)} s`); return; }
+  cooldownSemente = 3;
+  criaIdeia(hit.point.x, hit.point.z, 2, true);
+  popup(hit.point.clone().setY(hit.point.y + 5), 'Semente do público', '#ffe9a8');
+});
+
+/* ----- botões e teclado ----- */
+document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => setCam(b.dataset.cam)));
+$('btnPause').addEventListener('click', alternaPausa);
+$('btnMute').addEventListener('click', alternaSom);
+$('btnCerebro').addEventListener('click', () => { const on = $('brains').classList.toggle('show-brains'); $('btnCerebro').setAttribute('aria-pressed', on); });
+$('btnIniciar').addEventListener('click', comeca);
+$('btnDeNovo').addEventListener('click', () => { $('telaFim').hidden = true; $('telaInicio').hidden = false; });
+addEventListener('keydown', e => {
+  if (!jogando) return;
+  if (e.key === ' ') { e.preventDefault(); alternaPausa(); }
+  if (e.key === 'm' || e.key === 'M') alternaSom();
+  const m = { '1': 'orbita', '2': 'a', '3': 'b', '4': 'cine' }[e.key]; if (m) setCam(m);
+});
+function alternaPausa() {
+  pausado = !pausado;
+  $('btnPause').textContent = pausado ? '▶ Continuar' : '⏸ Pausar';
+  if (audioOK) { pausado ? audio.pause() : audio.play().catch(() => {}); }
+}
+function alternaSom() {
+  if (!audioOK && jogando) { audio.play().then(() => { audioOK = true; audio.muted = false; mudo = false; $('btnMute').textContent = '♪ Som'; }).catch(() => toast('Não foi possível tocar a música.')); return; }
+  mudo = !mudo; audio.muted = mudo; $('btnMute').textContent = mudo ? '♪ Mudo' : '♪ Som';
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden && jogando && !pausado) alternaPausa(); });
+
+function comeca() {
+  reinicia();
+  $('telaInicio').hidden = true; $('hud').hidden = false;
+  jogando = true; pausado = false; $('btnPause').textContent = '⏸ Pausar';
+  setCam('orbita');
+  iniciaAudio();
+}
+
+function fimDeJogo() {
+  if (!jogando) return;
+  jogando = false; audio.pause();
+  const [A, B] = agentes;
+  const pa = Math.round(A.pontos), pb = Math.round(B.pontos), eco = pa + pb;
+  const pontes = A.stats.pontes, capt = A.stats.capturas + B.stats.capturas;
+  const si = indiceSimbiose();
+  const venc = pa === pb ? null : pa > pb ? A : B;
+  $('fimTitulo').innerHTML = venc ? `<span style="color:#${venc.cor.getHexString()}">${venc.nome}</span> vence no placar` : 'Empate no placar';
+  let nivel;
+  if (pontes >= 6 && capt <= pontes / 2) nivel = 'Ecossistema simbiótico';
+  else if (pontes >= 2) nivel = 'Ecossistema em construção';
+  else nivel = 'Ecossistema em disputa';
+  $('fimLead').innerHTML = `<strong>${nivel}.</strong> As IAs formaram ${pontes} ponte${pontes === 1 ? '' : 's'} de simbiose e fizeram ${capt} captura${capt === 1 ? '' : 's'}. No fim, ${(si * 100).toFixed(0)}% das fronteiras entre elas eram pontes.`;
+  $('fimA').textContent = pa; $('fimB').textContent = pb; $('fimEco').textContent = eco;
+  const rendaPontes = arestas.filter(e => e.ponte && e.ponte.estado === 'ativa').reduce((s, e) => s + 2 + e.ponte.nivel, 0);
+  $('fimLicao').innerHTML = pontes >= 2
+    ? `Nenhuma das duas venceu sozinha: cada ponte rendia para as duas ao mesmo tempo, e no fim as torres de inovação produziam ${rendaPontes} pontos por segundo para cada IA. Inovar é construir pontes.`
+    : `Disputando cada nó, as duas IAs deixaram de construir as torres que renderiam para ambas. Experimente aumentar a empatia de uma delas e veja se a outra aprende a cooperar.`;
+  $('telaFim').hidden = false; $('hud').hidden = true;
+  desenhaGrafico();
+}
+function desenhaGrafico() {
+  const cv = $('grafico'), dpr = Math.min(devicePixelRatio, 2);
+  const w = cv.clientWidth, h = cv.clientHeight; cv.width = w * dpr; cv.height = h * dpr;
+  const x = cv.getContext('2d'); x.scale(dpr, dpr);
+  const pad = 26, X = t => pad + (w - pad * 2) * t / duracao, Y = v => h - pad - (h - pad * 2) * v;
+  x.strokeStyle = '#1d2b23'; x.lineWidth = 1; x.font = '11px Inter, sans-serif'; x.fillStyle = '#7f8c85';
+  [0, .5, 1].forEach(v => { x.beginPath(); x.moveTo(pad, Y(v)); x.lineTo(w - pad, Y(v)); x.stroke(); x.fillText((v * 100) + '%', 2, Y(v) + 4); });
+  ERAS.forEach(e => { const xx = X(e.f * duracao); x.beginPath(); x.moveTo(xx, pad - 8); x.lineTo(xx, h - pad); x.stroke(); x.fillText(e.nome, xx + 4, pad - 10 + 8); });
+  eventos.forEach(ev => { x.fillStyle = ev.tipo === 'ponte' ? '#e8ffd0' : '#ff5d5d'; x.fillRect(X(ev.t) - 1, ev.tipo === 'ponte' ? h - pad + 4 : h - pad + 12, 3, 7); });
+  [['a', '#1df28c'], ['b', '#ffb547']].forEach(([k, c]) => { x.strokeStyle = c; x.lineWidth = 2; x.beginPath(); historico.forEach((p, i) => { i ? x.lineTo(X(p.t), Y(p[k])) : x.moveTo(X(p.t), Y(p[k])); }); x.stroke(); });
+}
+
+/* ================= início ================= */
+await Promise.race([document.fonts.load('600 40px "Chakra Petch"'), new Promise(r => setTimeout(r, 1500))]).catch(() => {});
+criaNos();
+agentes = [criaAgente(0, 'NEXO', NEON), criaAgente(1, 'FAÍSCA', AMBER)];
+for (let i = 0; i < 6; i++) ideiaAleatoria();
+// demonstração atrás da tela inicial: as IAs já jogam em silêncio
+let demo = true;
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+});
+
+const relogio = new THREE.Clock();
+let uiT = 0;
+function loop() {
+  requestAnimationFrame(loop);
+  const dt = Math.min(relogio.getDelta(), .05);
+  if (!pausado) {
+    clock += dt;
+    const ritmo = analisaAudio(dt);
+    if (jogando) atualizaJogo(dt, ritmo);
+    else { // modo vitrine: IAs se movem atrás das telas
+      gameTime += dt;
+      if (ritmo.batida && ideias.length < 10 && Math.random() < .5) ideiaAleatoria();
+      tickRenda += dt; while (tickRenda >= 1) { tickRenda -= 1; renda(); }
+      agentes.forEach(a => atualizaAgente(a, dt));
+    }
+    atualizaVisual(dt, ritmo);
+  }
+  atualizaCamera(dt);
+  if (jogando) { uiT += dt; if (uiT > .2) { uiT = 0; atualizaUI(); } }
+  composer.render();
+}
+loop();
+</script>
+</body>
+</html>
