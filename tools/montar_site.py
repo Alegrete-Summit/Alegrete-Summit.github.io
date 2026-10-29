@@ -55,7 +55,11 @@ PAGINAS = [
     ("musicas", "musicas.html", "ia"),
     ("fabula", "fabula-kaua.html", "ia"),
     ("jogo", "jogo-kaua.html", "ia"),
+    ("simbiose", "jogo/jogo-simbiose.html", "ia"),
 ]
+
+# páginas autônomas (tela cheia, só em português), que entram no menu mas não são montadas a partir de _paginas/
+AUTONOMAS = {"simbiose"}
 
 # páginas fora do menu principal (o jogo é linkado da fábula e do rodapé) -> item do menu que fica destacado nelas
 FORA_DO_MENU = {"jogo": "fabula"}
@@ -64,7 +68,7 @@ TEXTOS = {
     "pt": {
         "menu": {"inicio": "Início", "programacao": "Programação", "novidades": "Novidades", "musicas": "Músicas",
                  "ia": "IA e ecossistemas", "pampa": "IA no Pampa", "inovar": "Inovar com IA", "casos": "Casos de sucesso", "clipe": "Clipes",
-                 "fabula": "A fábula de Kauã", "jogo": "Jogo: Kauã"},
+                 "fabula": "A fábula de Kauã", "jogo": "Jogo: Kauã", "simbiose": "Jogo: Simbiose"},
         "pular": "Pular para o conteúdo", "home": "Alegrete Summit 2026, página inicial",
         "abrir": "Menu", "nav": "Principal", "idioma": "Idioma",
         "grupo_evento": "Evento", "grupo_ia": "IA e inovação",
@@ -75,14 +79,14 @@ TEXTOS = {
                        ("index.html#apoio", "Realização e apoio")],
         "rod_ia": [("ia-ecossistemas.html", "O papel da IA nos ecossistemas"), ("ia-no-pampa.html", "IA nos setores do Pampa"),
                    ("inovar-com-ia.html", "Como inovar com IA"), ("casos-de-sucesso.html", "Startups brasileiras com IA"), ("clipe.html", "Clipe: a simbiose"),
-                   ("fabula-kaua.html", "A fábula de Kauã"), ("jogo-kaua.html", "Jogo: Kauã e o Kaá Sentinela")],
+                   ("fabula-kaua.html", "A fábula de Kauã"), ("jogo-kaua.html", "Jogo: Kauã e o Kaá Sentinela"), ("jogo/jogo-simbiose.html", "Jogo: Simbiose, IA vs IA")],
         "fino": "Realização: Ecossistema de Inovação Alegrete Cidade Inovadora. Evento gratuito, com certificação de participação. Programação extraída das publicações oficiais no Instagram; confira atualizações em",
         "topo": "Voltar ao topo",
     },
     "en": {
         "menu": {"inicio": "Home", "programacao": "Schedule", "novidades": "News", "musicas": "Music",
                  "ia": "AI & ecosystems", "pampa": "AI in the Pampa", "inovar": "Innovate with AI", "casos": "Success stories", "clipe": "Clips",
-                 "fabula": "Kauã's fable", "jogo": "Game: Kauã"},
+                 "fabula": "Kauã's fable", "jogo": "Game: Kauã", "simbiose": "Game: Symbiosis"},
         "pular": "Skip to content", "home": "Alegrete Summit 2026, home page",
         "abrir": "Menu", "nav": "Main", "idioma": "Language",
         "grupo_evento": "Event", "grupo_ia": "AI and innovation",
@@ -93,14 +97,14 @@ TEXTOS = {
                        ("index.html#apoio", "Organizers and supporters")],
         "rod_ia": [("ia-ecossistemas.html", "The role of AI in ecosystems"), ("ia-no-pampa.html", "AI across the Pampa's sectors"),
                    ("inovar-com-ia.html", "How to innovate with AI"), ("casos-de-sucesso.html", "Brazilian AI startups"), ("clipe.html", "Clip: the symbiosis"),
-                   ("fabula-kaua.html", "Kauã's fable"), ("jogo-kaua.html", "Game: Kauã and the Kaá Sentinel")],
+                   ("fabula-kaua.html", "Kauã's fable"), ("jogo-kaua.html", "Game: Kauã and the Kaá Sentinel"), ("jogo/jogo-simbiose.html", "Game: Symbiosis, AI vs AI (in Portuguese)")],
         "fino": "Organized by the Alegrete Cidade Inovadora innovation ecosystem. Free event with a certificate of participation. Schedule taken from the official Instagram posts; check for updates at",
         "topo": "Back to top",
     },
     "es": {
         "menu": {"inicio": "Inicio", "programacao": "Programa", "novidades": "Novedades", "musicas": "Música",
                  "ia": "IA y ecosistemas", "pampa": "IA en el Pampa", "inovar": "Innovar con IA", "casos": "Casos de éxito", "clipe": "Clips",
-                 "fabula": "La fábula de Kauã", "jogo": "Juego: Kauã"},
+                 "fabula": "La fábula de Kauã", "jogo": "Juego: Kauã", "simbiose": "Juego: Simbiosis"},
         "pular": "Saltar al contenido", "home": "Alegrete Summit 2026, página de inicio",
         "abrir": "Menú", "nav": "Principal", "idioma": "Idioma",
         "grupo_evento": "Evento", "grupo_ia": "IA e innovación",
@@ -111,7 +115,7 @@ TEXTOS = {
                        ("index.html#apoio", "Organización y apoyo")],
         "rod_ia": [("ia-ecossistemas.html", "El papel de la IA en los ecosistemas"), ("ia-no-pampa.html", "IA en los sectores del Pampa"),
                    ("inovar-com-ia.html", "Cómo innovar con IA"), ("casos-de-sucesso.html", "Startups brasileñas con IA"), ("clipe.html", "Clip: la simbiosis"),
-                   ("fabula-kaua.html", "La fábula de Kauã"), ("jogo-kaua.html", "Juego: Kauã y el Kaá Centinela")],
+                   ("fabula-kaua.html", "La fábula de Kauã"), ("jogo-kaua.html", "Juego: Kauã y el Kaá Centinela"), ("jogo/jogo-simbiose.html", "Juego: Simbiosis, IA vs IA (en portugués)")],
         "fino": "Organiza: Ecosistema de Innovación Alegrete Cidade Inovadora. Evento gratuito, con certificado de participación. Programa tomado de las publicaciones oficiales en Instagram; consulta las novedades en",
         "topo": "Volver arriba",
     },
@@ -212,7 +216,7 @@ def caminho_para(origem, destino, arquivo):
     return subir + PASTA[destino] + arquivo
 
 
-def menu(lang, ativo):
+def menu(lang, ativo, base):
     t = TEXTOS[lang]["menu"]
     linhas = []
     ativo = FORA_DO_MENU.get(ativo, ativo)
@@ -222,6 +226,8 @@ def menu(lang, ativo):
         attrs = ' class="nav-ia"' if grupo == "ia" else ""
         if chave == ativo:
             attrs += ' aria-current="page"'
+        if chave in AUTONOMAS:
+            arquivo = base + arquivo
         linhas.append(f'      <a href="{arquivo}"{attrs}>{t[chave]}</a>')
     return "\n".join(linhas)
 
@@ -243,8 +249,9 @@ def alternates(lang, arquivo):
     return "\n".join(linhas)
 
 
-def lista(itens):
-    return "\n".join(f'        <li><a href="{h}">{r}</a></li>' for h, r in itens)
+def lista(itens, base):
+    autonomos = {a for c, a, _ in PAGINAS if c in AUTONOMAS}
+    return "\n".join(f'        <li><a href="{base + h if h in autonomos else h}">{r}</a></li>' for h, r in itens)
 
 
 def extras(meta, campo, base):
@@ -264,6 +271,8 @@ def main():
         t = TEXTOS[lang]
         (RAIZ / PASTA[lang]).mkdir(exist_ok=True)
         for chave, arquivo, _ in PAGINAS:
+            if chave in AUTONOMAS:
+                continue
             fonte = FRAG / lang / arquivo
             if not fonte.exists():
                 print("faltando", fonte.relative_to(RAIZ))
@@ -277,9 +286,9 @@ def main():
                 html_lang=HTML_LANG[lang], og_locale=OG_LOCALE[lang], base=base,
                 titulo_completo=html.escape(completo), descricao=html.escape(meta["descricao"]),
                 alternates=alternates(lang, arquivo), logo=LOGO,
-                menu=menu(lang, chave), idiomas=seletor(lang, arquivo),
+                menu=menu(lang, chave, base), idiomas=seletor(lang, arquivo),
                 idiomas_rodape=seletor(lang, arquivo, curto=False),
-                rod_evento=lista(t["rod_evento"]), rod_ia=lista(t["rod_ia"]),
+                rod_evento=lista(t["rod_evento"], base), rod_ia=lista(t["rod_ia"], base),
                 corpo=corpo.strip("\n"),
                 estilos_extras=extras(meta, "css", base), scripts_extras=extras(meta, "js", base),
                 **{"t_" + k: v for k, v in t.items() if isinstance(v, str)},

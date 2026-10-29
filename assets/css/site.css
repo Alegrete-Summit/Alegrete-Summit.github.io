@@ -98,7 +98,7 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
 .nav-toggle[aria-expanded="true"] .burger::before { transform: translateY(6px) rotate(45deg); }
 .nav-toggle[aria-expanded="true"] .burger::after { transform: translateY(-6px) rotate(-45deg); }
 
-/* o menu completo só cabe em linha a partir de 1600px (largura útil de 1320px) */
+/* o menu completo só cabe em linha a partir de 1600px (com o cabeçalho alargado logo abaixo) */
 @media (max-width: 1599px) {
   .nav-toggle { display: inline-flex; }
   .lang { margin-left: auto; }
@@ -114,6 +114,10 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
 }
 @media (min-width: 1600px) and (max-width: 2199px) {
   .nav a { padding: 10px 7px; letter-spacing: .03em; }
+}
+/* com o menu em linha, o cabeçalho passa da largura útil (1320px) para caber os 10 itens e o seletor de idioma */
+@media (min-width: 1600px) {
+  .site-header .wrap { width: min(1640px, 100% - 32px); }
 }
 @media (max-width: 480px) {
   .site-header .wrap { gap: 8px; min-height: 60px; }
